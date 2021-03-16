@@ -1,0 +1,135 @@
+\documentclass[11pt,twoside=semi,openright,numbers=noenddot]{article}
+
+\def\ncode {LPHYS1351}
+\def\ncourse {Projet différences finies}
+\def\nlecturer {M. Crucifix}
+\def\nyear {2021}
+\def\ntitle {Mécanique Céleste}
+
+\input{./header}
+
+\begin{document}
+
+\input{./title-page}
+
+\tableofcontents
+\newpage
+
+Le but de cet exercice est de simuler l'évolution de l'orbite de Jupiter pour les $5000$ prochaines années. Dans un premier temps nous ne tiendrons compte que de Jupiter et du Soleil (\textbf{problème à 2 corps}) et nous ajouterons par la suite la contribution de Saturne (\textbf{problème à 3 corps}).
+
+\section{Problème à 2 corps}
+
+Soit $m_1$ la masse du Soleil et $m_2$ la masse de Jupiter avec $m_1 \gg m_2$ et $\vec{r}_1$ la position du Soleil et $\vec{r}_2$ la position de Jupiter avec $\vec{r} = |\vec{r}_1 - \vec{r}_2|$ leur distance relative.
+
+Prenons $\vb{q} = \vb{r} \in \R^3$ comme coordonnée généralisée.
+
+L'énergie cinétique du système est,
+\begin{align*}
+  T &= \sum_{i=1}^{2} T_i \\
+    &= \frac{1}{2} m_1 \vd{r}_1^2 + \frac{1}{2} m_2 \vd{r}_2^2
+\end{align*}
+
+L'énergie potentielle est,
+\begin{equation*}
+  V = V(|\vec{r}_1 - \vec{r}_2|) = - \frac{Gm_1m_2}{|\vec{r}_1 - \vec{r}_2|}
+\end{equation*}
+avec $G$ la constante universelle de gravitation.
+
+Le Lagrangien est donc, 
+\begin{equation}
+  \lag = \frac{1}{2} m_1 \vd{r}_1^2 + \frac{1}{2} m_2 \vd{r}_2^2 + \frac{Gm_1m_2}{|\vec{r}_1 - \vec{r}_2|}
+\end{equation}
+
+Lorsqu'on cherche une solution analytique, souvent on réexprime le Lagrangien en terme du mouvement relatif $\vb{r}$ et du mouvement du centre de masse $\vb{r}_{CM}$ et on passe en coordonnées sphériques. Ce n'est pas d'utilité dans notre cas.
+
+L'Hamiltonien est la transformée de Legendre, 
+\begin{align}
+  \ham 
+    &= \sum_{i=1}^2 \vb{p}_i \cdot \vb{r}_i - \lag \\
+    &= \frac{\vb{p}_1^2}{2m_1} + \frac{\vb{p}_2^2}{2m_1} - \frac{Gm_1m_2}{|\vec{r}_1 - \vec{r}_2|}
+\end{align}
+ où $\vb{p}_i$ est l'impulsion conjuguée de la i-ème masse.
+
+ On trouve finalement les équations canoniques,
+\begin{align}
+  \vd{p}_i &= - \pdv{\ham}{\vb{q}_i} \\
+  \vd{q}_i &= \pdv{\ham}{\vb{p}_i} = \frac{\vb{p}_i}{m_i}
+\end{align}
+
+\subsection{Schémas numériques}
+Posons, 
+\begin{equation}
+  \vb{y} = 
+  \begin{pmatrix}
+    p_1 \\ p_2 \\ p_3 \\ q_1 \\ q_2 \\ q_3
+  \end{pmatrix}
+\end{equation}
+
+\subsubsection{Heun (RK2)}
+Partons du schéma de Heun, 
+\begin{align*}
+  \begin{cases}
+    \tilde{\vb{y}}_{j+1} &= \vb{y}_j + (\Delta t) \vb{f}_j \\
+    \vb{y}_{j+1} &= \vb{y}_j + \frac{1}{2}(\vb{k}_1 + \vb{k}_2)
+  \end{cases}
+\end{align*}
+
+Où les coefficients $\vb{k}_1$ et $\vb{k}_2$ sont donnés par, 
+\begin{align*}
+  \vb{k}_1 &= (\Delta t) \vb{f}_j \\
+  \vb{k}_2 &= (\Delta t) \vb{f} (t_{j+1}, \vb{y_j} + \vb{k}_1)
+\end{align*}
+
+Ce qui nous donne,
+\begin{align}
+  \vb{y}(t_{j+1}) 
+    &= \vb{y}(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_{j+1}, \vb{y_j} + (\Delta t) \vb{f}(t_j)) \\
+    &= \vb{y}(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_{j+1}, \tilde{\vb{y}}(t_{j+1}))
+\end{align}
+
+On cherche à savoir s'il est consistent avec 
+\begin{equation}
+  \vd{y}(t) \equiv \vb{f}(t, \vb{y}) 
+\end{equation}
+
+Effectuons un développement de Taylor,
+\begin{align*}
+  \vb{f}(t_{j+1}, \vb{y}(t_{j+1})) 
+    &= \vb{f}(t_j + \Delta t, \vb{y}(t_j + \Delta t)) \\
+    &= \vb{f}(t_j, \vb{y}(t_j)) + (\Delta t) \pdv{f(t_j, \vb{y}_j)}{t} + (\Delta y) \pdv{f(t_j, \vb{y}_j)}{y} + \frac{1}{2} (\Delta t)^2 \pdv{f(t_j, \vb{y}_j)}{t^2} + \frac{1}{2} (\Delta y)^2 \pdv{f(t_j, \vb{y}_j)}{y^2} + \frac{1}{2} (\Delta t) (\Delta y) \pdv{f(t_j, \vb{y}_j)}{t, y} + (\Delta y) \pdv{f(t_j, \vb{y}_j)}{y}
+\end{align*}
+
+On regarde au schéma de Taylor,
+\begin{align*}
+  \vb{y}(t_{j+1}) 
+    &= \vb{y}(t_j + \Delta t) \\
+    &= \vb{y}(t_j) + (\Delta t) \vb{y}^{(1)}(t_j) + \frac{1}{2!}(\Delta t)^2 \vb{y}^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \dots \\
+    &= \vb{y}(t_j) + (\Delta t) \vb{f}(t_j, \vb{y}(t_j)) + \frac{1}{2!}(\Delta t)^2 \vb{y}^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \dots
+\end{align*}
+
+On compare Heun avec ce développement de Taylor, 
+
+\subsubsection{RK4}
+Partons du schéma de RK4, 
+\begin{align*}
+  \vb{y}_{j+1} = \vb{y}_j + \frac{1}{6}(\vb{k}_1 + 2 \vb{k}_2 + 2 \vb{k}_3 + \vb{k}_4)
+\end{align*}
+
+Où les coefficients $\vb{k}_1$, $\vb{k}_2$, $\vb{k}_3$ et $\vb{k}_4$ sont donnés par, 
+\begin{align*}
+  \vb{k}_1 &= (\Delta t) \vb{f}_j \\
+  \vb{k}_2 &= (\Delta t) \vb{f} (t_{j} + \frac{\Delta t}{2}, \vb{y_j} + \frac{1}{2 }\vb{k}_1) \\ 
+  \vb{k}_3 &= (\Delta t) \vb{f} (t_{j} + \frac{\Delta t}{2}, y_j + \frac{1}{2} \vb{k}_2) \\ 
+  \vb{k}_4 &= (\Delta t) \vb{f} (t_{j}, y_{j} + \vb{k}_3) 
+\end{align*}
+
+Effectuons un développement de Taylor du schéma de RK4,
+\begin{align*}
+  \vb{y}(t_{j+1}) 
+    &= \vb{y}(t_j + \Delta t) \\
+    &= \vb{y}(t_j) + (\Delta t) \vb{y}^{(1)}(t_j) + \frac{1}{2!}(\Delta t)^2 \vb{y}^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \frac{1}{4!} (\Delta t)^4 y^{(4)}(t_j) + \dots \\
+    &= \vb{y}(t_j) + (\Delta t) \vb{f}(t_j, \vb{y}(t_j)) + \frac{1}{2!}(\Delta t)^2 \vb{y}^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \frac{1}{4!} (\Delta t)^4 y^{(4)}(t_j) + \dots
+\end{align*}
+
+
+\end{document}
