@@ -21,7 +21,7 @@ Le but de cet exercice est de simuler l'évolution de l'orbite de Jupiter pour l
 
 Soit $m_1$ la masse du Soleil et $m_2$ la masse de Jupiter avec $m_1 \gg m_2$ et $\vec{r}_1$ la position du Soleil et $\vec{r}_2$ la position de Jupiter avec $\vec{r} = |\vec{r}_1 - \vec{r}_2|$ leur distance relative.
 
-Prenons $\vb{q} = \vb{r} \in \R^3$ comme coordonnée généralisée.
+Prenons $\vb{q} \equiv \vb{r} = (x, y, z) \in \R^3$ comme coordonnée généralisée.
 
 L'énergie cinétique du système est,
 \begin{align*}
@@ -42,29 +42,23 @@ Le Lagrangien est donc,
 
 Lorsqu'on cherche une solution analytique, souvent on réexprime le Lagrangien en terme du mouvement relatif $\vb{r}$ et du mouvement du centre de masse $\vb{r}_{CM}$ et on passe en coordonnées sphériques. Ce n'est pas d'utilité dans notre cas.
 
-L'Hamiltonien est la transformée de Legendre, 
+L'Hamiltonien est la transformée de Legendre du Lagrangien, 
 \begin{align}
   \ham 
     &= \sum_{i=1}^2 \vb{p}_i \cdot \vb{r}_i - \lag \\
-    &= \frac{\vb{p}_1^2}{2m_1} + \frac{\vb{p}_2^2}{2m_1} - \frac{Gm_1m_2}{|\vec{r}_1 - \vec{r}_2|}
+    &= \frac{\vb{p}_1^2}{2m_1} + \frac{\vb{p}_2^2}{2m_2} - \frac{Gm_1m_2}{|\vb{r}_1 - \vb{r}_2|}
 \end{align}
  où $\vb{p}_i$ est l'impulsion conjuguée de la i-ème masse.
 
  On trouve finalement les équations canoniques,
 \begin{align}
-  \vd{p}_i &= - \pdv{\ham}{\vb{q}_i} \\
-  \vd{q}_i &= \pdv{\ham}{\vb{p}_i} = \frac{\vb{p}_i}{m_i}
+  p_{1,x} &= - \pdv{\ham}{{x}_1} = - Gm_1m_2 \frac{2(x_1 - x_2)}{\left( (x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2 \right)^{3/2}} \\
+  \dot{x}_1 &= \pdv{\ham}{p_{1,x}} = \frac{p_{1,x}}{m_1}
 \end{align}
 
-\subsection{Schémas numériques}
-Posons, 
-\begin{equation}
-  \vb{y} = 
-  \begin{pmatrix}
-    p_1 \\ p_2 \\ p_3 \\ q_1 \\ q_2 \\ q_3
-  \end{pmatrix}
-\end{equation}
+etc\dots
 
+\subsection{Schémas numériques}
 \subsubsection{Heun (RK2)}
 Partons du schéma de Heun, 
 \begin{align*}
@@ -188,6 +182,8 @@ Effectuons un développement de Taylor du schéma de RK4,
     &= y(t_j) + (\Delta t) y^{(1)}(t_j) + \frac{1}{2!}(\Delta t)^2 y^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \frac{1}{4!} (\Delta t)^4 y^{(4)}(t_j) + \dots \\
     &= y(t_j) + (\Delta t) \vb{f}(t_j, y(t_j)) + \frac{1}{2!}(\Delta t)^2 y^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \frac{1}{4!} (\Delta t)^4 y^{(4)}(t_j) + \dots
 \end{align*}
+
+Après quelques calculs, on trouve que la différence entre le RK4 et le schéma de Taylor est de l'ordre de $((\Delta t)^5)$ ce qui implique que la méthode de RK4 est convergence à l'ordre $\tau = ((\Delta t)^4)
 
 
 \end{document}
