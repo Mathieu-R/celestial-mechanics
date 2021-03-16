@@ -69,50 +69,108 @@ Posons,
 Partons du schéma de Heun, 
 \begin{align*}
   \begin{cases}
-    \tilde{\vb{y}}_{j+1} &= \vb{y}_j + (\Delta t) \vb{f}_j \\
-    \vb{y}_{j+1} &= \vb{y}_j + \frac{1}{2}(\vb{k}_1 + \vb{k}_2)
+    \tilde{y}_{j+1} &= y_j + (\Delta t) \vb{f}_j \\
+    y_{j+1} &= y_j + \frac{1}{2}(\vb{k}_1 + \vb{k}_2)
   \end{cases}
 \end{align*}
 
 Où les coefficients $\vb{k}_1$ et $\vb{k}_2$ sont donnés par, 
 \begin{align*}
   \vb{k}_1 &= (\Delta t) \vb{f}_j \\
-  \vb{k}_2 &= (\Delta t) \vb{f} (t_{j+1}, \vb{y_j} + \vb{k}_1)
+  \vb{k}_2 &= (\Delta t) \vb{f} (t_{j+1}, \tilde{y}_{j+1})
 \end{align*}
 
 Ce qui nous donne,
 \begin{align}
-  \vb{y}(t_{j+1}) 
-    &= \vb{y}(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_{j+1}, \vb{y_j} + (\Delta t) \vb{f}(t_j)) \\
-    &= \vb{y}(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_{j+1}, \tilde{\vb{y}}(t_{j+1}))
+  y(t_{j+1}) 
+    &= y(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_{j+1}, \vb{y_j} + (\Delta t) \vb{f}(t_j)) \\
+    &= y(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_j) + \frac{1}{2}(\Delta t) \vb{f}(t_{j+1}, \tilde{y}(t_{j+1}))
 \end{align}
 
-On cherche à savoir s'il est consistent avec 
+Effectuons un développement de Taylor de $\vb{f}(t_{j+1}, \tilde{y}(t_{j+1}))$,
+\begin{align*}
+  \vb{f}(t_{j+1}, \tilde{y}_{j+1}) 
+    &= \vb{f}(t_j + \Delta t, \tilde{y}(t_j + \Delta t)) \\
+    &= \vb{f}(t_j, \tilde{y}(t_j)) + (\Delta t) \pdv{f(t_j, y_j)}{t} + (\Delta y) \pdv{f(t_j, y_j)}{y} + \frac{1}{2} (\Delta t)^2 \pdv[2]{f(t_j, y_j)}{t} \\ 
+    &+ \frac{1}{2} (\Delta y)^2 \pdv[2]{f(t_j, y_j)}{y} + \frac{1}{2} (\Delta t) (\Delta y) \pdv{f(t_j, y_j)}{t}{y} + (\Delta y) \pdv{f(t_j, y_j)}{y}
+\end{align*}
+
+\begin{definition}
+  Un schéma numérique est dit \textbf{consistent} si l'itération converge vers l'expression du système original lorsque $\Delta t \rightarrow 0$
+\end{definition}
+
+On cherche à savoir si le schéma de Heun est consistent avec 
 \begin{equation}
-  \vd{y}(t) \equiv \vb{f}(t, \vb{y}) 
+  \vd{y}(t) \equiv \vb{f}(t, y) 
 \end{equation}
 
-Effectuons un développement de Taylor,
+Pour cela, on regarde au schéma de Taylor,
 \begin{align*}
-  \vb{f}(t_{j+1}, \vb{y}(t_{j+1})) 
-    &= \vb{f}(t_j + \Delta t, \vb{y}(t_j + \Delta t)) \\
-    &= \vb{f}(t_j, \vb{y}(t_j)) + (\Delta t) \pdv{f(t_j, \vb{y}_j)}{t} + (\Delta y) \pdv{f(t_j, \vb{y}_j)}{y} + \frac{1}{2} (\Delta t)^2 \pdv{f(t_j, \vb{y}_j)}{t^2} + \frac{1}{2} (\Delta y)^2 \pdv{f(t_j, \vb{y}_j)}{y^2} + \frac{1}{2} (\Delta t) (\Delta y) \pdv{f(t_j, \vb{y}_j)}{t, y} + (\Delta y) \pdv{f(t_j, \vb{y}_j)}{y}
+  y(t_{j+1}) 
+    &= y(t_j + \Delta t) \\
+    &= y(t_j) + (\Delta t) y^{(1)}(t_j) + \frac{1}{2!}(\Delta t)^2 y^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \dots \\
+    &= y(t_j) + (\Delta t) \vb{f}(t_j, y(t_j)) + \frac{1}{2!}(\Delta t)^2 y^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \dots
 \end{align*}
 
-On regarde au schéma de Taylor,
+On effectue la différence du Heun avec le schéma de Taylor et on observe que, 
+\begin{equation}
+  y_{\text{Heun}} - y_{\text{Taylor}} = \mathcal{O}((\Delta t)^3)
+\end{equation}
+
+Par conséquent, l'erreur commise à chaque pas de temps est de l'ordre de $(\Delta t)^3$ puisque cette différence tend vers zéro pour $(\Delta t) \rightarrow 0$, on trouve que la méthode de Heun est convergente à l'ordre $\tau = ((\Delta t)^2)$.
+
+\begin{theorem}
+  Soit une équation différentielle $y' = Ay$, où on suppose que la matrice $A \in \R^{n \times n}$ à une base de vecteurs propres et de valeurs propres $\lambda_1, \dots, \lambda_n$, la méthode de Runge Kutta a un point fixe stable (asymptotiquement stable) à l'origin lorsque appliqué à 
+  \begin{equation}
+    \dv{y}{t} = Ay 
+  \end{equation}
+  ssi le même schéma numérique à un équilibre stable (asymptotiquement stable) à l'origine lorsque apliqué à l'EDO scalaire, 
+  \begin{equation}
+    \dv{x}{t} = \lambda x 
+  \end{equation}
+  où $\lambda$ est une valeur propre de $A$.
+\end{theorem}
+
+\begin{corollary}
+  Soit une EDO $\dv{y}{t} = Ay$ avec une matrice diagonalisable $A$. Soit une méthode RK donnée avec une fonction de stabilité $R$. L'origine est stable si 
+  \begin{equation}
+    |R(\lambda \Delta t)| \leq 1
+  \end{equation}
+\end{corollary}
+
+\begin{definition} [région de stabilité]
+  La région de stabilité d'un schéma numérique est la région telle que $R(\Delta t) \leq 1$  
+\end{definition}
+
+\begin{definition} [A-stabilité]
+  Un schéma numérique est dit \textbf{A-stable} si les $y_N$ restent bornés dans le problème de décroissance radioactive.
+\end{definition}
+
+Afin de connaitre la \textbf{A-stabilité}, on compare la méthode de Heun avec l'équation de la décroissance radioactive. Prenons, 
+\begin{equation*}
+  \dv{y}{t} = - y \equiv f(t, y)
+\end{equation*}
+
+On a,
 \begin{align*}
-  \vb{y}(t_{j+1}) 
-    &= \vb{y}(t_j + \Delta t) \\
-    &= \vb{y}(t_j) + (\Delta t) \vb{y}^{(1)}(t_j) + \frac{1}{2!}(\Delta t)^2 \vb{y}^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \dots \\
-    &= \vb{y}(t_j) + (\Delta t) \vb{f}(t_j, \vb{y}(t_j)) + \frac{1}{2!}(\Delta t)^2 \vb{y}^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \dots
+  y_{j+1}
+    &= y_j - \frac{1}{2}(\Delta t) y_j - \frac{1}{2}(\Delta t) \tilde{y}_{j+1} \\
+    &= y_j - \frac{1}{2}(\Delta t) y_j - \frac{1}{2}(\Delta t) (y_j - (\Delta t) y_j) \\
+    &= y_j \left( 1 - \frac{1}{2}(\Delta t) - \frac{1}{2}(\Delta t) + \frac{1}{2}(\Delta t)^2 \right) \\
+  y_N &= y_0 \left( 1 - \Delta t + \frac{1}{2}(\Delta t)^2 \right)^N
 \end{align*}
 
-On compare Heun avec ce développement de Taylor, 
+Pour que $y_N$ soit borné il faut que, 
+\begin{align*}
+  \left| 1 - \Delta t + \frac{1}{2}(\Delta t)^2 \right| \leq 1 
+    &\iff -1 \leq 1 - \Delta t + \frac{1}{2}(\Delta t)^2 \leq 1 \\
+    &\iff -2 \leq - \Delta t + \frac{1}{2}(\Delta t)^2 \leq 0
+\end{align*}
 
 \subsubsection{RK4}
 Partons du schéma de RK4, 
 \begin{align*}
-  \vb{y}_{j+1} = \vb{y}_j + \frac{1}{6}(\vb{k}_1 + 2 \vb{k}_2 + 2 \vb{k}_3 + \vb{k}_4)
+  y_{j+1} = y_j + \frac{1}{6}(\vb{k}_1 + 2 \vb{k}_2 + 2 \vb{k}_3 + \vb{k}_4)
 \end{align*}
 
 Où les coefficients $\vb{k}_1$, $\vb{k}_2$, $\vb{k}_3$ et $\vb{k}_4$ sont donnés par, 
@@ -125,10 +183,10 @@ Où les coefficients $\vb{k}_1$, $\vb{k}_2$, $\vb{k}_3$ et $\vb{k}_4$ sont donn�
 
 Effectuons un développement de Taylor du schéma de RK4,
 \begin{align*}
-  \vb{y}(t_{j+1}) 
-    &= \vb{y}(t_j + \Delta t) \\
-    &= \vb{y}(t_j) + (\Delta t) \vb{y}^{(1)}(t_j) + \frac{1}{2!}(\Delta t)^2 \vb{y}^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \frac{1}{4!} (\Delta t)^4 y^{(4)}(t_j) + \dots \\
-    &= \vb{y}(t_j) + (\Delta t) \vb{f}(t_j, \vb{y}(t_j)) + \frac{1}{2!}(\Delta t)^2 \vb{y}^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \frac{1}{4!} (\Delta t)^4 y^{(4)}(t_j) + \dots
+  y(t_{j+1}) 
+    &= y(t_j + \Delta t) \\
+    &= y(t_j) + (\Delta t) y^{(1)}(t_j) + \frac{1}{2!}(\Delta t)^2 y^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \frac{1}{4!} (\Delta t)^4 y^{(4)}(t_j) + \dots \\
+    &= y(t_j) + (\Delta t) \vb{f}(t_j, y(t_j)) + \frac{1}{2!}(\Delta t)^2 y^{(2)}(t_j) + \frac{1}{3!} (\Delta t)^3 y^{(3)}(t_j) + \frac{1}{4!} (\Delta t)^4 y^{(4)}(t_j) + \dots
 \end{align*}
 
 
