@@ -18,6 +18,7 @@ jupiter_impulsion0 = [0.0054161298800 * M_jup, 0.0051281500076 * M_jup, 0.002066
 saturn_position0 = [5.8139930169916, -7.3998049325634, -3.3068297277913]
 saturn_impulsion0 = [0.0042287765130 * M_sat, 0.0030656447687 * M_sat, 0.0010842701680 * M_sat]
 
+# time in days
 t0 = 0
-tN = 5000
-dt = 1
+tN = 5000 * 365 # integration over 5000 years
+dt = 30 # time_step : 30 days
