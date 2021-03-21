@@ -1,9 +1,12 @@
-from astropy.constants import M_sun, M_jup
 
 # https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturnfact.html
 M_sat = 5.6834e26
+M_jup = 1.89812e27
+M_sun = 1.98841e30
 
-# initial conditions 
+G = 6.67430e-11
+
+# initial conditions
 # positions are in a.u (astronomical units)
 # speeds are in a.u / day => speed * mass = impulsion
 # masses are in kg
@@ -20,5 +23,5 @@ saturn_impulsion0 = [0.0042287765130 * M_sat, 0.0030656447687 * M_sat, 0.0010842
 
 # time in days
 t0 = 0
-tN = 5000 * 365 # integration over 5000 years
-dt = 30 # time_step : 30 days
+tN = 5000 * 365.25 # integration over 5000 years
+dt = 15 # time_step : 30 days
