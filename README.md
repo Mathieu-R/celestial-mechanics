@@ -21,8 +21,8 @@ $ python3 -m pip install numpy matplotlib click astropy tqdm
 
 Launch simulations
 ```bash
-$ python3 index.py --type=2body --plot=static3D 
-$ python3 index.py --type=2body --plot=animated3D
-$ python3 index.py --type=3body --plot=static3D
-$ python3 index.py --type=3body --plot=animated3D 
+$ python3 index.py --type=2body --plot=static 
+$ python3 index.py --type=2body --plot=animated
+$ python3 index.py --type=3body --plot=static
+$ python3 index.py --type=3body --plot=animated
 ```
