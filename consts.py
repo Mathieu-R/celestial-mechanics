@@ -23,5 +23,5 @@ saturn_impulsion0 = [0.0042287765130 * M_sat, 0.0030656447687 * M_sat, 0.0010842
 
 # time in days
 t0 = 0
-tN = 5000 * 365.25 # integration over 5000 years
+tN = 1 * 365.25 # integration over 5000 years
 dt = 15 # time_step : 30 days

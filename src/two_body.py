@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from mpl_toolkits.mplot3d import Axes3D
+
 from .edo import (two_body_dhdr, two_body_dhdp)
 from .solvers import (heun, rk4, euler_symp, stormer_verlet_it)
 
@@ -41,11 +43,12 @@ class TwoBody():
   def plot(self):
     q_heun = self.solve()
 
-    fig, ax = plt.subplots(2,2, figsize=(8,8))
+    fig = plt.figure()
+    ax = fig.add_subplot(222, projection="3d")
 
     #Heun (RK2)
-    ax[0][0].plot(xs=q_heun[:,0,0], ys=q_heun[:,0,1], zs=q_heun[:,0,2], projection="3d")
-    ax[0][0].plot(xs=q_heun[:,1,0], ys=q_heun[:,1,1], zs=q_heun[:,1,2], projection="3d")
+    ax[0][0].plot(xs=q_heun[:,0,0], ys=q_heun[:,0,1], zs=q_heun[:,0,2])
+    ax[0][0].plot(xs=q_heun[:,1,0], ys=q_heun[:,1,1], zs=q_heun[:,1,2])
 
     plt.tight_layout()
     plt.show()
