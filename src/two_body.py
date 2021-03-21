@@ -43,12 +43,12 @@ class TwoBody():
   def plot(self):
     q_heun = self.solve()
 
-    fig = plt.figure()
-    ax = fig.add_subplot(222, projection="3d")
+    fig = plt.figure(figsize=(8,8))
+    ax = fig.add_subplot(2, 2, 1, projection="3d")
 
     #Heun (RK2)
-    ax[0][0].plot(xs=q_heun[:,0,0], ys=q_heun[:,0,1], zs=q_heun[:,0,2])
-    ax[0][0].plot(xs=q_heun[:,1,0], ys=q_heun[:,1,1], zs=q_heun[:,1,2])
+    ax.plot(xs=q_heun[:,0,0], ys=q_heun[:,0,1], zs=q_heun[:,0,2])
+    ax.plot(xs=q_heun[:,1,0], ys=q_heun[:,1,1], zs=q_heun[:,1,2])
 
     plt.tight_layout()
     plt.show()

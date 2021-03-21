@@ -8,8 +8,8 @@ def rk2_derivatives(edo, v, dt):
 
 def heun(dhdr, dhdp, q, p, dt, nt):
   for t in range(0, nt - 1):
-    q[t + 1] = q[t] + (dt / 2) * rk2_derivatives(dhdr, q[t], dt)
-    p[t + 1] = p[t] + (dt / 1) * rk2_derivatives(dhdp, p[t], dt)
+    q[t + 1] = q[t] + (dt / 2) * rk2_derivatives(dhdr, p[t], dt)
+    p[t + 1] = p[t] + (dt / 1) * rk2_derivatives(dhdp, q[t], dt)
 
   return q, p
 
@@ -23,8 +23,8 @@ def rk4_derivatives(edo, v, dt):
 
 def rk4(dhdr, dhdp, q, p, dt, nt):
   for t in tqdm(range(0, nt - 1)):
-    q[t + 1] = q[t] + (dt / 6) * rk4_derivatives(dhdr, q[t], dt)
-    p[t + 1] = p[t] + (dt / 6) * rk4_derivatives(dhdp, p[t], dt)
+    q[t + 1] = q[t] + (dt / 6) * rk4_derivatives(dhdr, p[t], dt)
+    p[t + 1] = p[t] + (dt / 6) * rk4_derivatives(dhdp, q[t], dt)
 
   return q, p
 
