@@ -2,14 +2,14 @@ import numpy as np
 import tqdm
 
 def rk2_derivatives(edo, v, dt):
-  k1 = edo(v)
-  k2 = edo(v + (dt * k1))
+  k1 = dt * edo(v)
+  k2 = dt * edo(v + (dt * k1))
   return (k1 + k2)
 
 def heun(dhdr, dhdp, q, p, dt, nt):
   for t in range(0, nt - 1):
-    q[t + 1] = q[t] + (dt / 2) * rk2_derivatives(dhdr, p[t], dt)
-    p[t + 1] = p[t] + (dt / 1) * rk2_derivatives(dhdp, q[t], dt)
+    q[t + 1] = q[t] + (1 / 2) * rk2_derivatives(dhdr, p[t], dt)
+    p[t + 1] = p[t] + (1 / 1) * rk2_derivatives(dhdp, q[t], dt)
 
   return q, p
 

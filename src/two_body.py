@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -43,12 +44,23 @@ class TwoBody():
   def plot(self):
     q_heun = self.solve()
 
-    fig = plt.figure(figsize=(8,8))
-    ax = fig.add_subplot(2, 2, 1, projection="3d")
+    self.fig = plt.figure(figsize=(8,8))
+    self.axes = self.fig.add_subplot(2, 2, 1, projection="3d")
 
     #Heun (RK2)
-    ax.plot(xs=q_heun[:,0,0], ys=q_heun[:,0,1], zs=q_heun[:,0,2])
-    ax.plot(xs=q_heun[:,1,0], ys=q_heun[:,1,1], zs=q_heun[:,1,2])
+    self.axes.plot(xs=q_heun[:,0,0], ys=q_heun[:,0,1], zs=q_heun[:,0,2])
+    self.axes.plot(xs=q_heun[:,1,0], ys=q_heun[:,1,1], zs=q_heun[:,1,2])
 
     plt.tight_layout()
     plt.show()
+
+  def animate(self):
+    self.animation = animation.FuncAnimation(
+      fig=self.fig,
+      func=self.live_orbit,
+      #frames=,
+      repeat=True
+    )
+
+  def live_orbit(self):
+    pass
