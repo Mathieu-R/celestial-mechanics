@@ -39,8 +39,11 @@ from consts import (M_sun as m1, M_jup as m2, M_sat as m3, G)
 #     ]
 #   ])
 
-def two_body_dhdr(state):
-  p1, p2 = state[0], state[1]
+def two_body_dhdr(q_state, p_state):
+  """
+
+  """
+  p1, p2 = p_state[0], p_state[1]
 
   return np.array([
     [
@@ -55,8 +58,8 @@ def two_body_dhdr(state):
     ]
   ])
 
-def two_body_dhdp(state):
-  r1, r2 = state[0], state[1]
+def two_body_dhdp(q_state, p_state):
+  r1, r2 = q_state[0], q_state[1]
 
   r12 = np.sqrt((r1[0] - r2[0]) ** 2 + (r1[1] - r2[1]) ** 2 + (r1[2] - r2[2]) ** 2)
   return np.array([
