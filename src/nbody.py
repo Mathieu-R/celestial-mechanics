@@ -13,13 +13,13 @@ class NBodySimulation():
     self.t0 = t0
     self.tN = tN
     self.dt = dt
-    self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet (Symplectique)"]
+    self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet"]
 
     self.solvers = [
       {"call": heun, "name": "Heun (RK2)"},
       {"call": rk4, "name": "RK4"},
       {"call": euler_symp, "name": "Euler Symplectique"},
-      {"call": stormer_verlet, "name": "Stormer_Verlet (Symplectique)"}
+      {"call": stormer_verlet, "name": "Stormer_Verlet"}
     ]
 
     self.results = []
