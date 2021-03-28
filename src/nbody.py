@@ -60,7 +60,7 @@ class NBodySimulation():
         x_index = (ind * 3)
         y_index = (ind * 3) + 1
         z_index = (ind * 3) + 2
-        ax.plot(xs=result.q[:,x_index], ys=result.q[:,y_index], zs=result.q[:,z_index])
+        ax.plot(xs=result["q"][:,x_index], ys=result["q"][:,y_index], zs=result["q"][:,z_index])
 
     plt.show()
 
