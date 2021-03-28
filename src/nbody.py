@@ -53,7 +53,7 @@ class NBodySimulation():
       ax = self.fig.add_subplot(2, 2, index + 1, projection="3d")
       # set plot parameters
       ax.set_title(result["solver"])
-      ax.set_legend([body.name for body in self.bodies])
+      #ax.legend([body.name for body in self.bodies])
 
       # plotting each body
       for (ind, body) in enumerate(self.bodies):
