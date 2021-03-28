@@ -27,7 +27,8 @@ def main(stype, plot):
     elif plot == "animated":
       pass
   elif stype == "threebody":
-    ThreeBody = NbodySimulation(bodies=[Sun, Jupiter, Saturn], t0=t0, tN=tN, dt=dt)
+    ThreeBody = NBodySimulation(bodies=[Sun, Jupiter, Saturn], t0=t0, tN=tN, dt=dt)
+    ThreeBody.simulate()
     if plot == "static":
       ThreeBody.plot()
     elif plot == "animated":

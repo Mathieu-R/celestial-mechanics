@@ -4,7 +4,7 @@ import matplotlib.animation as animation
 
 from mpl_toolkits.mplot3d import Axes3D
 
-from .edo import (n_body_dhdp, n_body_dhdr)
+from .edo import (n_body_dqdt, n_body_dpdt)
 from .solvers import (heun, rk4, euler_symp, stormer_verlet)
 
 class NBodySimulation():
@@ -37,12 +37,12 @@ class NBodySimulation():
     q[0] = np.concatenate(np.array([body.initial_positions for body in self.bodies]))
     p[0] = np.concatenate(np.array([body.initial_impulsions for body in self.bodies]))
 
-    return solver(dhdr=n_body_dhdr, dhdp=n_body_dhdp, q=q, p=p, dt=self.dt, nt=nt)
+    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=self.dt, nt=nt, args=(self.bodies))
 
   def simulate(self):
     for (index, solver) in enumerate(self.solvers):
       q, p = self.solve(solver["call"])
-      self.results[index] = {"solver": solver["name"], "q": q, "p": p}
+      self.results.append({"solver": solver["name"], "q": q, "p": p})
 
   def plot(self):
     self.fig = plt.figure(figsize=(8,8))
@@ -50,7 +50,7 @@ class NBodySimulation():
     # loop for each result (corresponding to a specific solving method)
     for (index, result) in enumerate(self.results):
       # create a 3D plot
-      ax = self.fig.add_subplot(2, 2, index, projection="3d")
+      ax = self.fig.add_subplot(2, 2, index + 1, projection="3d")
       # set plot parameters
       ax.set_title(result["solver"])
       ax.set_legend([body.name for body in self.bodies])
@@ -63,3 +63,6 @@ class NBodySimulation():
         ax.plot(xs=result.q[:,x_index], ys=result.q[:,y_index], zs=result.q[:,z_index])
 
     plt.show()
+
+  def animate(self):
+    pass
