@@ -44,6 +44,7 @@ def two_body_dhdr(q_state, p_state):
 
   """
   p1, p2 = p_state[0], p_state[1]
+  #print(f"p2/m2: {p2[0] / m2}, {p2[1] / m2}, {p2[2] / m2}")
 
   return np.array([
     [
@@ -60,8 +61,13 @@ def two_body_dhdr(q_state, p_state):
 
 def two_body_dhdp(q_state, p_state):
   r1, r2 = q_state[0], q_state[1]
+  #print(r1, r2)
 
   r12 = np.sqrt((r1[0] - r2[0]) ** 2 + (r1[1] - r2[1]) ** 2 + (r1[2] - r2[2]) ** 2)
+  #print(f"r12: {r12}")
+  #print(f"G: {G}")
+  #print(f"m1: {m1}, m2: {m2}, x1 - x2: {r1[0] - r2[0]}")
+  #print(f"x1: {((G * m1 * m2) / r12 ** 3) * (r1[0] - r2[0])}")
   return np.array([
     [
       ((G * m1 * m2) / r12 ** 3) * (r1[0] - r2[0]),

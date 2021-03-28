@@ -5,12 +5,14 @@ import matplotlib.animation as animation
 from mpl_toolkits.mplot3d import Axes3D
 
 from .edo import (two_body_dhdr, two_body_dhdp)
-from .solvers import (heun, rk4, euler_symp, stormer_verlet_it)
+from .solvers import (heun, rk4, euler_symp, stormer_verlet)
 
 from consts import (sun_position0, sun_impulsion0, jupiter_position0, jupiter_impulsion0)
 from consts import (t0, tN, dt)
 
-np.set_printoptions(precision=3, suppress=True)
+# I thunk that this command, also remove precision
+# in real array in memory not only in the print
+#np.set_printoptions(precision=3, suppress=True)
 
 class TwoBody():
   def __init__(self):
@@ -34,10 +36,10 @@ class TwoBody():
     q[0] = self.initial_positions
     p[0] = self.initial_impulsions
 
-    q_heun, p_heun = heun(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q, p=p, dt=self.dt, nt=nt)
-    #q_rk4, p_rk4 = rk4(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q, p=p, dt=self.dt, nt=nt)
-    #q_euler, p_euler = euler_symp(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q, p=p, dt=self.dt, nt=nt)
-    #q_stormer, p_stormer = stormer_verlet_it(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q, p=p, dt=self.dt, nt=nt)
+    q_heun, p_heun = heun(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
+    #q_rk4, p_rk4 = rk4(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
+    #q_euler, p_euler = euler_symp(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
+    #q_stormer, p_stormer = stormer_verlet(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
 
     return q_heun#, q_rk4, q_euler, q_stormer
 
@@ -45,11 +47,27 @@ class TwoBody():
     q_heun = self.solve()
 
     self.fig = plt.figure(figsize=(8,8))
-    self.axes = self.fig.add_subplot(2, 2, 1, projection="3d")
+    self.heun_axes = self.fig.add_subplot(2, 2, 1, projection="3d")
+    self.rk4_axes = self.fig.add_subplot(2, 2, 2, projection="3d")
+    self.euler_axes = self.fig.add_subplot(2, 2, 3, projection="3d")
+    self.stormer_axes = self.fig.add_subplot(2, 2, 4, projection="3d")
 
-    #Heun (RK2)
-    self.axes.plot(xs=q_heun[:,0,0], ys=q_heun[:,0,1], zs=q_heun[:,0,2])
-    self.axes.plot(xs=q_heun[:,1,0], ys=q_heun[:,1,1], zs=q_heun[:,1,2])
+    # Heun (RK2)
+    #self.axes.plot(xs=q_heun[:,0,0], ys=q_heun[:,0,1], zs=q_heun[:,0,2])
+    self.heun_axes.plot(xs=q_heun[:,1,0], ys=q_heun[:,1,1], zs=q_heun[:,1,2])
+    self.heun_axes.set_title("Heun (RK2)")
+
+    # RK4
+    # self.axes.plot(xs=q_rk4[:,0,0], ys=q_rk4[:,0,1], zs=q_rk4[:,0,2])
+    # self.axes.plot(xs=q_rk4[:,1,0], ys=q_rk4[:,1,1], zs=q_rk4[:,1,2])
+
+    # # Euler Symplectic
+    # self.axes.plot(xs=q_euler[:,0,0], ys=q_euler[:,0,1], zs=q_euler[:,0,2])
+    # self.axes.plot(xs=q_euler[:,1,0], ys=q_euler[:,1,1], zs=q_euler[:,1,2])
+
+    # # Stormer Verlet (symplectic)
+    # self.axes.plot(xs=q_stormer[:,0,0], ys=q_stormer[:,0,1], zs=q_stormer[:,0,2])
+    # self.axes.plot(xs=q_stormer[:,1,0], ys=q_stormer[:,1,1], zs=q_stormer[:,1,2])
 
     plt.tight_layout()
     plt.show()
