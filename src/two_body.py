@@ -10,7 +10,7 @@ from .solvers import (heun, rk4, euler_symp, stormer_verlet)
 from consts import (sun_position0, sun_impulsion0, jupiter_position0, jupiter_impulsion0)
 from consts import (t0, tN, dt)
 
-# I thunk that this command, also remove precision
+# I think that this command, also remove precision
 # in real array in memory not only in the print
 #np.set_printoptions(precision=3, suppress=True)
 
@@ -37,14 +37,14 @@ class TwoBody():
     p[0] = self.initial_impulsions
 
     q_heun, p_heun = heun(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
-    #q_rk4, p_rk4 = rk4(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
-    #q_euler, p_euler = euler_symp(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
-    #q_stormer, p_stormer = stormer_verlet(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
+    q_rk4, p_rk4 = rk4(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
+    q_euler, p_euler = euler_symp(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
+    q_stormer, p_stormer = stormer_verlet(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
 
-    return q_heun#, q_rk4, q_euler, q_stormer
+    return q_heun, q_rk4, q_euler, q_stormer
 
   def plot(self):
-    q_heun = self.solve()
+    q_heun, q_rk4, q_euler, q_stormer = self.solve()
 
     self.fig = plt.figure(figsize=(8,8))
     self.heun_axes = self.fig.add_subplot(2, 2, 1, projection="3d")
@@ -58,16 +58,19 @@ class TwoBody():
     self.heun_axes.set_title("Heun (RK2)")
 
     # RK4
-    # self.axes.plot(xs=q_rk4[:,0,0], ys=q_rk4[:,0,1], zs=q_rk4[:,0,2])
-    # self.axes.plot(xs=q_rk4[:,1,0], ys=q_rk4[:,1,1], zs=q_rk4[:,1,2])
+    self.rk4_axes.plot(xs=q_rk4[:,0,0], ys=q_rk4[:,0,1], zs=q_rk4[:,0,2])
+    self.rk4_axes.plot(xs=q_rk4[:,1,0], ys=q_rk4[:,1,1], zs=q_rk4[:,1,2])
+    self.rk4_axes.set_title("RK4")
 
-    # # Euler Symplectic
-    # self.axes.plot(xs=q_euler[:,0,0], ys=q_euler[:,0,1], zs=q_euler[:,0,2])
-    # self.axes.plot(xs=q_euler[:,1,0], ys=q_euler[:,1,1], zs=q_euler[:,1,2])
+    # Euler Symplectic
+    self.euler_axes.plot(xs=q_euler[:,0,0], ys=q_euler[:,0,1], zs=q_euler[:,0,2])
+    self.euler_axes.plot(xs=q_euler[:,1,0], ys=q_euler[:,1,1], zs=q_euler[:,1,2])
+    self.euler_axes.set_title("Euler Symplectique")
 
-    # # Stormer Verlet (symplectic)
-    # self.axes.plot(xs=q_stormer[:,0,0], ys=q_stormer[:,0,1], zs=q_stormer[:,0,2])
-    # self.axes.plot(xs=q_stormer[:,1,0], ys=q_stormer[:,1,1], zs=q_stormer[:,1,2])
+    # Stormer Verlet (symplectic)
+    self.stormer_axes.plot(xs=q_stormer[:,0,0], ys=q_stormer[:,0,1], zs=q_stormer[:,0,2])
+    self.stormer_axes.plot(xs=q_stormer[:,1,0], ys=q_stormer[:,1,1], zs=q_stormer[:,1,2])
+    self.stormer_axes.set_title("Stormer Verlet (Symplectique)")
 
     plt.tight_layout()
     plt.show()

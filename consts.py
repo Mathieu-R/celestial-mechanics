@@ -1,4 +1,3 @@
-
 # https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturnfact.html
 M_sat = 5.6834e26
 M_jup = 1.89812e27

@@ -59,6 +59,31 @@ def two_body_dhdr(q_state, p_state):
     ]
   ])
 
+
+def n_body_dhdr(q_state, p_state, bodies):
+  """
+  :param q_state: n-body position state vector => q_state: [x1, y1, z1, x2, y2, z2,..., xN, yN, zN]
+  :param p_state: n-body impulsion state vector => p_state: [px1, py1, pz1,..., pxN, pyN, pzN]
+  :param bodies: set of bodies (Sun, Jupiter,...)
+  :type q_state: ndarray
+  :type p_state: ndarray
+  :type bodies: ndarray
+
+  :return: dh/dr
+  :rtype: ndarray
+  """
+  new_state = np.zeros(len(p_state))
+  for i in range(len(bodies)):
+    # px_i / m_i
+    new_state[i] = q_state[i] / bodies[i].mass
+    # py_i / m_i
+    new_state[i + 1] = q_state[i + 1] / bodies[i].mass
+    # pz_i / m_i
+    new_state[i + 2] = q_state[i + 1] / bodies[i].mass
+
+  return new_state
+
+
 def two_body_dhdp(q_state, p_state):
   r1, r2 = q_state[0], q_state[1]
   #print(r1, r2)
@@ -81,6 +106,23 @@ def two_body_dhdp(q_state, p_state):
     ]
   ])
 
+def n_body_dhdp(q_state, p_state, bodies):
+  """
+  :param q_state: n-body position state vector => q_state: [x1, y1, z1, x2, y2, z2,..., xN, yN, zN]
+  :param p_state: n-body impulsion state vector => p_state: [px1, py1, pz1,..., pxN, pyN, pzN]
+  :param bodies: set of bodies (Sun, Jupiter,...)
+  :type q_state: ndarray
+  :type p_state: ndarray
+  :type bodies: ndarray
+
+  :return: dh/dr
+  :rtype: ndarray
+  """
+  new_state = np.zeros(len(q_state))
+  for i in range(len(bodies)):
+    pass
+
+  return new_state
 
 # three-body problem
 # H = p_1^2 / 2m_1 + p_2^2 / 2m_2 + p_3^2 / 2m_3 + Gm_1m_2 / |r_1 - r_2| + Gm_2m_3 / |r_2 - r_3| + Gm_1m_3 / |r_1 - r_2|
