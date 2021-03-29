@@ -59,6 +59,29 @@ def two_body_dqdt(q_state, p_state):
     ]
   ])
 
+
+def two_body_dpdt(q_state, p_state):
+  r1, r2 = q_state[0], q_state[1]
+  #print(r1, r2)
+
+  r12 = np.sqrt((r1[0] - r2[0]) ** 2 + (r1[1] - r2[1]) ** 2 + (r1[2] - r2[2]) ** 2)
+  #print(f"r12: {r12}")
+  #print(f"G: {G}")
+  #print(f"m1: {m1}, m2: {m2}, x1 - x2: {r1[0] - r2[0]}")
+  #print(f"x1: {((G * m1 * m2) / r12 ** 3) * (r1[0] - r2[0])}")
+  return np.array([
+    [
+      ((G * m1 * m2) / r12 ** 3) * (r1[0] - r2[0]),
+      ((G * m1 * m2) / r12 ** 3) * (r1[1] - r2[1]),
+      ((G * m1 * m2) / r12 ** 3) * (r1[2] - r2[2])
+    ],
+    [
+      ((G * m1 * m2) / r12 ** 3) * (r2[0] - r1[0]),
+      ((G * m1 * m2) / r12 ** 3) * (r2[1] - r1[1]),
+      ((G * m1 * m2) / r12 ** 3) * (r2[2] - r1[2])
+    ]
+  ])
+
 def n_body_dqdt(qk, pk, bodies):
   """
   :param qk: n-body position state vector => qk: [x1, y1, z1, x2, y2, z2,..., xN, yN, zN]
@@ -83,29 +106,6 @@ def n_body_dqdt(qk, pk, bodies):
 
   return dqdt
 
-
-def two_body_dpdt(q_state, p_state):
-  r1, r2 = q_state[0], q_state[1]
-  #print(r1, r2)
-
-  r12 = np.sqrt((r1[0] - r2[0]) ** 2 + (r1[1] - r2[1]) ** 2 + (r1[2] - r2[2]) ** 2)
-  #print(f"r12: {r12}")
-  #print(f"G: {G}")
-  #print(f"m1: {m1}, m2: {m2}, x1 - x2: {r1[0] - r2[0]}")
-  #print(f"x1: {((G * m1 * m2) / r12 ** 3) * (r1[0] - r2[0])}")
-  return np.array([
-    [
-      ((G * m1 * m2) / r12 ** 3) * (r1[0] - r2[0]),
-      ((G * m1 * m2) / r12 ** 3) * (r1[1] - r2[1]),
-      ((G * m1 * m2) / r12 ** 3) * (r1[2] - r2[2])
-    ],
-    [
-      - ((G * m1 * m2) / r12 ** 3) * (r1[0] - r2[0]),
-      - ((G * m1 * m2) / r12 ** 3) * (r1[1] - r2[1]),
-      - ((G * m1 * m2) / r12 ** 3) * (r1[2] - r2[2])
-    ]
-  ])
-
 def n_body_dpdt(qk, pk, bodies):
   """
   :param qk: n-body position state vector at k * dt time => qk: [x1, y1, z1, x2, y2, z2,..., xN, yN, zN]
@@ -125,11 +125,11 @@ def n_body_dpdt(qk, pk, bodies):
     for j in range(len(bodies)):
       if j != i:
         j_offset = j * 3
-        dpdt[i_offset] += ((G * bodies[i].mass * bodies[j].mass) / r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]]) ** 3) *  (qk[i_offset] - qk[j_offset])
+        dpdt[i_offset] += ((G * bodies[i].mass * bodies[j].mass) / r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]]) ** 3) * (qk[i_offset] - qk[j_offset])
 
-        dpdt[i_offset + 1] += ((G * bodies[i].mass * bodies[j].mass) / r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]]) ** 3) *  (qk[i_offset + 1] - qk[j_offset + 1])
+        dpdt[i_offset + 1] += ((G * bodies[i].mass * bodies[j].mass) / r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]]) ** 3) * (qk[i_offset + 1] - qk[j_offset + 1])
 
-        dpdt[i_offset + 2] += ((G * bodies[i].mass * bodies[j].mass) / r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]]) ** 3) *  (qk[i_offset + 2] - qk[j_offset + 2])
+        dpdt[i_offset + 2] += ((G * bodies[i].mass * bodies[j].mass) / r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]]) ** 3) * (qk[i_offset + 2] - qk[j_offset + 2])
 
   return dpdt
 
