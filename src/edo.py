@@ -131,7 +131,8 @@ def n_body_dpdt(qk, pk, bodies):
 
         dpdt[i_offset + 2] += ((G * bodies[i].mass * bodies[j].mass) / r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]]) ** 3) * (qk[i_offset + 2] - qk[j_offset + 2])
 
-  return dpdt
+  # divide by two to avoid double count
+  return dpdt / 2
 
 def r_dist(ri, rj):
   """
