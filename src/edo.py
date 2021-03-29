@@ -94,6 +94,7 @@ def n_body_dqdt(qk, pk, bodies):
   :return: \dot{q} = dh/dp
   :rtype: ndarray
   """
+  print(f"dq/dt -- Sun: x:{qk[0]}, y:{qk[1]}, z:{qk[2]}")
   dqdt = np.zeros(len(qk))
   for i in range(len(bodies)):
     offset = i * 3
@@ -118,6 +119,7 @@ def n_body_dpdt(qk, pk, bodies):
   :return: \dot{p} = - dh/dr => \dot{p} = [\dot{px1}, \dot{py2}, \dot{pz1},..., \dot{pxN}, \dot{pyN}, \dot{pzN}]
   :rtype: ndarray
   """
+  print(f"dp/dt -- Sun: x:{qk[0]}, y:{qk[1]}, z:{qk[2]}")
   dpdt = np.zeros(len(qk))
   # loop each body
   for i in range(len(bodies)):

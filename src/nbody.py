@@ -52,6 +52,7 @@ class NBodySimulation():
 
     # loop for each result (corresponding to a specific solving method)
     for (index, result) in enumerate(self.results):
+      print(result["solver"], result["q"][-1])
       # create a 3D plot
       ax = self.fig.add_subplot(2, 2, index + 1, projection="3d")
       # set plot parameters
@@ -68,7 +69,7 @@ class NBodySimulation():
         x, y, z = result["q"][:,x_index], result["q"][:,y_index], result["q"][:,z_index]
 
         max_dim = max(max(x), max(y), max(z))
-        print(max(x), max(y), max(z))
+        #print(max(x), max(y), max(z))
         if max_dim > max_range:
           max_range = max_dim
 
