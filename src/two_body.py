@@ -4,7 +4,7 @@ import matplotlib.animation as animation
 
 from mpl_toolkits.mplot3d import Axes3D
 
-from .edo import (two_body_dhdr, two_body_dhdp)
+from .edo import (two_body_dqdt, two_body_dpdt)
 from .solvers import (heun, rk4, euler_symp, stormer_verlet)
 
 from consts import (sun_position0, sun_impulsion0, jupiter_position0, jupiter_impulsion0)
@@ -36,10 +36,10 @@ class TwoBody():
     q[0] = self.initial_positions
     p[0] = self.initial_impulsions
 
-    q_heun, p_heun = heun(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
-    q_rk4, p_rk4 = rk4(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
-    q_euler, p_euler = euler_symp(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
-    q_stormer, p_stormer = stormer_verlet(dhdr=two_body_dhdr, dhdp=two_body_dhdp, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
+    q_heun, p_heun = heun(dqdt=two_body_dqdt, dpdt=two_body_dpdt, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
+    q_rk4, p_rk4 = rk4(dqdt=two_body_dqdt, dpdt=two_body_dpdt, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
+    q_euler, p_euler = euler_symp(dqdt=two_body_dqdt, dpdt=two_body_dpdt, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
+    q_stormer, p_stormer = stormer_verlet(dqdt=two_body_dqdt, dpdt=two_body_dpdt, q=q.copy(), p=p.copy(), dt=self.dt, nt=nt)
 
     return q_heun, q_rk4, q_euler, q_stormer
 

@@ -39,7 +39,7 @@ from consts import (M_sun as m1, M_jup as m2, M_sat as m3, G)
 #     ]
 #   ])
 
-def two_body_dhdr(q_state, p_state):
+def two_body_dqdt(q_state, p_state):
   """
 
   """
@@ -60,31 +60,7 @@ def two_body_dhdr(q_state, p_state):
   ])
 
 
-def n_body_dhdr(q_state, p_state, bodies):
-  """
-  :param q_state: n-body position state vector => q_state: [x1, y1, z1, x2, y2, z2,..., xN, yN, zN]
-  :param p_state: n-body impulsion state vector => p_state: [px1, py1, pz1,..., pxN, pyN, pzN]
-  :param bodies: set of bodies (Sun, Jupiter,...)
-  :type q_state: ndarray
-  :type p_state: ndarray
-  :type bodies: ndarray
-
-  :return: dh/dr
-  :rtype: ndarray
-  """
-  new_state = np.zeros(len(p_state))
-  for i in range(len(bodies)):
-    # px_i / m_i
-    new_state[i] = q_state[i] / bodies[i].mass
-    # py_i / m_i
-    new_state[i + 1] = q_state[i + 1] / bodies[i].mass
-    # pz_i / m_i
-    new_state[i + 2] = q_state[i + 1] / bodies[i].mass
-
-  return new_state
-
-
-def two_body_dhdp(q_state, p_state):
+def two_body_dpdt(q_state, p_state):
   r1, r2 = q_state[0], q_state[1]
   #print(r1, r2)
 
@@ -100,31 +76,76 @@ def two_body_dhdp(q_state, p_state):
       ((G * m1 * m2) / r12 ** 3) * (r1[2] - r2[2])
     ],
     [
-      - ((G * m1 * m2) / r12 ** 3) * (r1[0] - r2[0]),
-      - ((G * m1 * m2) / r12 ** 3) * (r1[1] - r2[1]),
-      - ((G * m1 * m2) / r12 ** 3) * (r1[2] - r2[2])
+      ((G * m1 * m2) / r12 ** 3) * (r2[0] - r1[0]),
+      ((G * m1 * m2) / r12 ** 3) * (r2[1] - r1[1]),
+      ((G * m1 * m2) / r12 ** 3) * (r2[2] - r1[2])
     ]
   ])
 
-def n_body_dhdp(q_state, p_state, bodies):
+def n_body_dqdt(qk, pk, bodies):
   """
-  :param q_state: n-body position state vector => q_state: [x1, y1, z1, x2, y2, z2,..., xN, yN, zN]
-  :param p_state: n-body impulsion state vector => p_state: [px1, py1, pz1,..., pxN, pyN, pzN]
+  :param qk: n-body position state vector => qk: [x1, y1, z1, x2, y2, z2,..., xN, yN, zN]
+  :param pk: n-body impulsion state vector => pk: [px1, py1, pz1,..., pxN, pyN, pzN]
   :param bodies: set of bodies (Sun, Jupiter,...)
   :type q_state: ndarray
   :type p_state: ndarray
   :type bodies: ndarray
 
-  :return: dh/dr
+  :return: \dot{q} = dh/dp
   :rtype: ndarray
   """
-  new_state = np.zeros(len(q_state))
+  dqdt = np.zeros(len(qk))
   for i in range(len(bodies)):
-    pass
+    offset = i * 3
+    # px_i / m_i
+    dqdt[offset] = pk[offset] / bodies[i].mass
+    # py_i / m_i
+    dqdt[offset + 1] = pk[offset + 1] / bodies[i].mass
+    # pz_i / m_i
+    dqdt[offset + 2] = pk[offset + 1] / bodies[i].mass
 
-  return new_state
+  return dqdt
+
+def n_body_dpdt(qk, pk, bodies):
+  """
+  :param qk: n-body position state vector at k * dt time => qk: [x1, y1, z1, x2, y2, z2,..., xN, yN, zN]
+  :param pk: n-body impulsion state vector at k * dt time => pk: [px1, py1, pz1,..., pxN, pyN, pzN]
+  :param bodies: set of bodies (Sun, Jupiter,...)
+  :type qk: ndarray
+  :type pk: ndarray
+  :type bodies: ndarray
+
+  :return: \dot{p} = - dh/dr => \dot{p} = [\dot{px1}, \dot{py2}, \dot{pz1},..., \dot{pxN}, \dot{pyN}, \dot{pzN}]
+  :rtype: ndarray
+  """
+  dpdt = np.zeros(len(qk))
+  # loop each body
+  for i in range(len(bodies)):
+    i_offset = i * 3
+    for j in range(len(bodies)):
+      if j != i:
+        j_offset = j * 3
+        dpdt[i_offset] += ((G * bodies[i].mass * bodies[j].mass) / r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]]) ** 3) * (qk[i_offset] - qk[j_offset])
+
+        dpdt[i_offset + 1] += ((G * bodies[i].mass * bodies[j].mass) / r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]]) ** 3) * (qk[i_offset + 1] - qk[j_offset + 1])
+
+        dpdt[i_offset + 2] += ((G * bodies[i].mass * bodies[j].mass) / r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]]) ** 3) * (qk[i_offset + 2] - qk[j_offset + 2])
+
+  # divide by two to avoid double count
+  return dpdt / 2
+
+def r_dist(ri, rj):
+  """
+  Calculate distance between two points in \R^3
+  :param ri: point of \R^3: [xi, yi, zi]
+  :param rj: point of \R^3: [xj, yj, zj]
+
+  :return: distance betwen the two points
+  :rtype: float
+  """
+  return np.sqrt((ri[0] - rj[0]) ** 2 + (ri[1] - rj[1]) ** 2 + (ri[2] - rj[2]) ** 2)
 
 # three-body problem
-# H = p_1^2 / 2m_1 + p_2^2 / 2m_2 + p_3^2 / 2m_3 + Gm_1m_2 / |r_1 - r_2| + Gm_2m_3 / |r_2 - r_3| + Gm_1m_3 / |r_1 - r_2|
+# H = p_1^2 / 2m_1 + p_2^2 / 2m_2 + p_3^2 / 2m_3 + Gm_1m_2 / |r_1 - r_2| + Gm_2m_3 / |r_2 - r_3| + Gm_1m_3 / |r_1 - r_3|
 def three_body():
   pass

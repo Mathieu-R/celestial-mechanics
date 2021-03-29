@@ -12,7 +12,6 @@ day_to_second = 24 * 60 * 60
 # [G]: m^3 / kg s^2 => using a.u and days [G]: a.u / kg days^2
 G = (6.67430e-11 * (meter_to_au ** 3) * (day_to_second ** 2))
 
-
 # initial conditions
 # positions are in a.u (astronomical units)
 # speeds are in a.u / day => speed * mass = impulsion
