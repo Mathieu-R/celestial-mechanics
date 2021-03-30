@@ -13,9 +13,9 @@ from consts import (t0, tN, dt)
 plt.style.use("science")
 
 # prepare bodies
-Sun = Body("Sun", sun_position0, sun_impulsion0, M_sun)
-Jupiter = Body("Jupiter", jupiter_position0, jupiter_impulsion0, M_jup)
-Saturn = Body("Saturn", saturn_position0, saturn_impulsion0, M_sat)
+Sun = Body("Sun", sun_position0, sun_impulsion0, M_sun, 'y')
+Jupiter = Body("Jupiter", jupiter_position0, jupiter_impulsion0, M_jup, 'r')
+Saturn = Body("Saturn", saturn_position0, saturn_impulsion0, M_sat, 'b')
 
 @click.command()
 @click.option("--stype", default="twobody", help="2-Body problem or 3-Body problem")

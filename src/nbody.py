@@ -15,12 +15,11 @@ class NBodySimulation():
     self.tN = tN
     self.dt = dt
     self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet"]
-    self.colors = {"Sun": 'y', "Jupiter": 'r', "Saturn": 'b'} # sun: orange, jupiter: red, saturn: blue
 
     self.solvers = [
-      #{"call": heun, "name": "Heun (RK2)"}#,
-      #{"call": rk4, "name": "RK4"},
-      #{"call": euler_symp, "name": "Euler Symplectique"},
+      {"call": heun, "name": "Heun (RK2)"},
+      {"call": rk4, "name": "RK4"},
+      {"call": euler_symp, "name": "Euler Symplectique"},
       {"call": stormer_verlet, "name": "Stormer Verlet"}
     ]
 
@@ -28,12 +27,12 @@ class NBodySimulation():
 
   def solve(self, solver):
     # number of time step
-    nt = int((self.tN - self.t0) / self.dt)
+    self.nt = int((self.tN - self.t0) / self.dt)
 
     # positions and impulsions state vectors
     # each body is in \R^3 (3D space x, y, z)
-    q = np.zeros((nt, len(self.bodies) * 3))
-    p = np.zeros((nt, len(self.bodies) * 3))
+    q = np.zeros((self.nt, len(self.bodies) * 3))
+    p = np.zeros((self.nt, len(self.bodies) * 3))
 
     # set initial conditions
     q[0] = np.concatenate(np.array([body.initial_positions for body in self.bodies]))
@@ -87,7 +86,6 @@ class NBodySimulation():
 
   def plot3D(self):
     self.fig = plt.figure(figsize=(8,8))
-    colors = ['r', 'b', 'g', 'y', 'm', 'c']
 
     # loop for each result (corresponding to a specific solving method)
     for (index, result) in enumerate(self.results):
@@ -112,7 +110,7 @@ class NBodySimulation():
         if max_dim > max_range:
           max_range = max_dim
 
-        ax.plot(xs=x, ys=y, zs=z, c=random.choice(colors), label=body.name)
+        ax.plot(xs=x, ys=y, zs=z, c=body.color, label=body.name)
 
       # limiting plot
       ax.set_xlim([-max_range,max_range])
@@ -123,5 +121,17 @@ class NBodySimulation():
 
     plt.show()
 
-  def animate(self):
+  def update(index):
     pass
+
+  def animate(self):
+    self.fig = plt.figure(figsize=(8, 8))
+    self.axes = self.fig.add_subplot(projection="3d")
+
+    # parameters
+
+
+    for body in self.bodies:
+      body.line, = self.axes.plot(xs=np.zeros((self.nt)), ys=np.zeros((self.nt)), zs=np.zeros((self.nt)), color=body.color, label=body.name)
+
+
