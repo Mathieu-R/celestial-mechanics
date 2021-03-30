@@ -29,7 +29,7 @@ def main(stype, plot):
     twobody = NBodySimulation(bodies=[Sun, Jupiter], t0=t0, tN=tN, dt=dt)
     twobody.simulate()
     if plot == "static":
-      twobody.plot()
+      twobody.plot2D()
     elif plot == "animated":
       twobody.animate()
 
@@ -37,7 +37,7 @@ def main(stype, plot):
     threeBody = NBodySimulation(bodies=[Sun, Jupiter, Saturn], t0=t0, tN=tN, dt=dt)
     threeBody.simulate()
     if plot == "static":
-      threeBody.plot()
+      threeBody.plot3D()
     elif plot == "animated":
       threeBody.animate()
 

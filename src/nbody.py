@@ -15,6 +15,7 @@ class NBodySimulation():
     self.tN = tN
     self.dt = dt
     self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet"]
+    self.colors = {"Sun": 'y', "Jupiter": 'r', "Saturn": 'b'} # sun: orange, jupiter: red, saturn: blue
 
     self.solvers = [
       {"call": heun, "name": "Heun (RK2)"},
@@ -46,12 +47,51 @@ class NBodySimulation():
       q, p = self.solve(solver["call"])
       self.results.append({"solver": solver["name"], "q": q, "p": p})
 
-  def plot(self):
+  def plot2D(self):
+    self.fig, ax = plt.subplots(1, 1, figsize=(8, 8))
+
+
+    # set plot parameters
+    result = self.results[0]
+    ax.set_title(result["solver"])
+    ax.set_xlabel("x [a.u]")
+    ax.set_ylabel("y [a.u]")
+
+    max_range = 0
+
+    # plotting each body
+    for (ind, body) in enumerate(self.bodies):
+      x_index = (ind * 3)
+      y_index = (ind * 3) + 1
+
+      x, y= result["q"][:,x_index], result["q"][:,y_index]
+
+      max_dim = max(max(x), max(y))
+      #print(max(x), max(y), max(z))
+      if max_dim > max_range:
+        max_range = max_dim
+
+      # plot Sun at the center (but should move a little bit over a long time ?)
+      if body.name == "Sun":
+        ax.plot(0, 0, "o", color="orange", markersize=3)
+
+      ax.plot(x, y, c=self.colors[body.name], label=body.name)
+
+    # limiting plot
+    ax.set_xlim([-max_range,max_range])
+    ax.set_ylim([-max_range,max_range])
+
+    #ax.legend()
+
+    plt.show()
+
+  def plot3D(self):
     self.fig = plt.figure(figsize=(8,8))
     colors = ['r', 'b', 'g', 'y', 'm', 'c']
 
     # loop for each result (corresponding to a specific solving method)
     for (index, result) in enumerate(self.results):
+      print(result["solver"], result["q"][-1])
       # create a 3D plot
       ax = self.fig.add_subplot(2, 2, index + 1, projection="3d")
       # set plot parameters
@@ -68,7 +108,7 @@ class NBodySimulation():
         x, y, z = result["q"][:,x_index], result["q"][:,y_index], result["q"][:,z_index]
 
         max_dim = max(max(x), max(y), max(z))
-        print(max(x), max(y), max(z))
+        #print(max(x), max(y), max(z))
         if max_dim > max_range:
           max_range = max_dim
 
