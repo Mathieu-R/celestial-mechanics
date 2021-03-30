@@ -17,9 +17,9 @@ class NBodySimulation():
     self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet"]
 
     self.solvers = [
-      {"call": heun, "name": "Heun (RK2)"},
-      {"call": rk4, "name": "RK4"},
-      {"call": euler_symp, "name": "Euler Symplectique"},
+      #{"call": heun, "name": "Heun (RK2)"}#,
+      #{"call": rk4, "name": "RK4"},
+      #{"call": euler_symp, "name": "Euler Symplectique"},
       {"call": stormer_verlet, "name": "Stormer Verlet"}
     ]
 
@@ -46,7 +46,41 @@ class NBodySimulation():
       q, p = self.solve(solver["call"])
       self.results.append({"solver": solver["name"], "q": q, "p": p})
 
-  def plot(self):
+  def plot2D(self):
+    self.fig, ax = plt.subplots(1, 4, figsize=(5*4, 5))
+    colors = ['r', 'b', 'g', 'y', 'm', 'c']
+
+    # loop for each result (corresponding to a specific solving method)
+    for (index, result) in enumerate(self.results):
+      #print(result["solver"], result["q"][-1])
+      # set plot parameters
+      ax[index].set_title(result["solver"])
+
+      max_range = 0
+
+      # plotting each body
+      for (ind, body) in enumerate(self.bodies):
+        x_index = (ind * 3)
+        y_index = (ind * 3) + 1
+
+        x, y= result["q"][:,x_index], result["q"][:,y_index]
+
+        max_dim = max(max(x), max(y))
+        #print(max(x), max(y), max(z))
+        if max_dim > max_range:
+          max_range = max_dim
+
+        ax[index].plot(x, y, c=random.choice(colors), label=body.name)
+
+      # limiting plot
+      ax[index].set_xlim([-max_range,max_range])
+      ax[index].set_ylim([-max_range,max_range])
+
+      #ax.legend()
+
+    plt.show()
+
+  def plot3D(self):
     self.fig = plt.figure(figsize=(8,8))
     colors = ['r', 'b', 'g', 'y', 'm', 'c']
 
