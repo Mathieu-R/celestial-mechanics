@@ -59,8 +59,8 @@ def stormer_verlet(dqdt, dpdt, q, p, dt, nt, bodies):
   for k in range(0, nt - 1):
     qk, pk = q[k], p[k]
     print("stormer-verlet -- iteration:", k, qk)
-    p_half = pk + (dt / 2) * dpdt(qk, pk, bodies)
-    q[k + 1] = qk + dt * dqdt(qk, p_half, bodies)
-    p[k + 1] = p_half + (dt / 2) * dpdt(q[k + 1], p_half, bodies)
+    p_half = pk + ((dt / 2) * dpdt(qk, pk, bodies))
+    q[k + 1] = qk + (dt * dqdt(qk, p_half, bodies))
+    p[k + 1] = p_half + ((dt / 2) * dpdt(q[k + 1], p_half, bodies))
 
   return q, p

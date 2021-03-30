@@ -15,6 +15,7 @@ class NBodySimulation():
     self.tN = tN
     self.dt = dt
     self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet"]
+    self.colors = {"Sun": 'y', "Jupiter": 'r', "Saturn": 'b'} # sun: orange, jupiter: red, saturn: blue
 
     self.solvers = [
       #{"call": heun, "name": "Heun (RK2)"}#,
@@ -47,36 +48,40 @@ class NBodySimulation():
       self.results.append({"solver": solver["name"], "q": q, "p": p})
 
   def plot2D(self):
-    self.fig, ax = plt.subplots(1, 4, figsize=(5*4, 5))
-    colors = ['r', 'b', 'g', 'y', 'm', 'c']
+    self.fig, ax = plt.subplots(1, 1, figsize=(8, 8))
 
-    # loop for each result (corresponding to a specific solving method)
-    for (index, result) in enumerate(self.results):
-      #print(result["solver"], result["q"][-1])
-      # set plot parameters
-      ax[index].set_title(result["solver"])
 
-      max_range = 0
+    # set plot parameters
+    result = self.results[0]
+    ax.set_title(result["solver"])
+    ax.set_xlabel("x [a.u]")
+    ax.set_ylabel("y [a.u]")
 
-      # plotting each body
-      for (ind, body) in enumerate(self.bodies):
-        x_index = (ind * 3)
-        y_index = (ind * 3) + 1
+    max_range = 0
 
-        x, y= result["q"][:,x_index], result["q"][:,y_index]
+    # plotting each body
+    for (ind, body) in enumerate(self.bodies):
+      x_index = (ind * 3)
+      y_index = (ind * 3) + 1
 
-        max_dim = max(max(x), max(y))
-        #print(max(x), max(y), max(z))
-        if max_dim > max_range:
-          max_range = max_dim
+      x, y= result["q"][:,x_index], result["q"][:,y_index]
 
-        ax[index].plot(x, y, c=random.choice(colors), label=body.name)
+      max_dim = max(max(x), max(y))
+      #print(max(x), max(y), max(z))
+      if max_dim > max_range:
+        max_range = max_dim
 
-      # limiting plot
-      ax[index].set_xlim([-max_range,max_range])
-      ax[index].set_ylim([-max_range,max_range])
+      # plot Sun at the center (but should move a little bit over a long time ?)
+      if body.name == "Sun":
+        ax.plot(0, 0, "o", color="orange", markersize=3)
 
-      #ax.legend()
+      ax.plot(x, y, c=self.colors[body.name], label=body.name)
+
+    # limiting plot
+    ax.set_xlim([-max_range,max_range])
+    ax.set_ylim([-max_range,max_range])
+
+    #ax.legend()
 
     plt.show()
 
