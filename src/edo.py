@@ -55,9 +55,9 @@ def n_body_dqdt(qk, pk, bodies):
   :return: \dot{q} = dh/dp
   :rtype: ndarray
   """
-  print(f"dq/dt -- Jupiter: x:{qk[3]}, y:{qk[4]}, z:{qk[5]}")
-  print(f"dq/dt -- Jupiter: px:{pk[3]}, py:{pk[4]}, pz:{pk[5]}")
-  print(f"Jupiter Mass: {bodies[1].mass}")
+  #print(f"dq/dt -- Jupiter: x:{qk[3]}, y:{qk[4]}, z:{qk[5]}")
+  #print(f"dq/dt -- Jupiter: px:{pk[3]}, py:{pk[4]}, pz:{pk[5]}")
+  #print(f"Jupiter Mass: {bodies[1].mass}")
   dqdt = np.zeros(len(qk))
   for i in range(len(bodies)):
     offset = i * 3
@@ -66,7 +66,7 @@ def n_body_dqdt(qk, pk, bodies):
     # py_i / m_i
     dqdt[offset + 1] = pk[offset + 1] / bodies[i].mass
     # pz_i / m_i
-    dqdt[offset + 2] = pk[offset + 1] / bodies[i].mass
+    dqdt[offset + 2] = pk[offset + 2] / bodies[i].mass
 
   return dqdt
 
@@ -82,8 +82,8 @@ def n_body_dpdt(qk, pk, bodies):
   :return: \dot{p} = - dh/dr => \dot{p} = [\dot{px1}, \dot{py2}, \dot{pz1},..., \dot{pxN}, \dot{pyN}, \dot{pzN}]
   :rtype: ndarray
   """
-  print(f"dp/dt -- Jupiter: x:{qk[3]}, y:{qk[4]}, z:{qk[5]}")
-  print(f"dq/dt -- Jupiter: px:{pk[3]}, py:{pk[4]}, pz:{pk[5]}")
+  #print(f"dp/dt -- Jupiter: x:{qk[3]}, y:{qk[4]}, z:{qk[5]}")
+  #print(f"dq/dt -- Jupiter: px:{pk[3]}, py:{pk[4]}, pz:{pk[5]}")
   dpdt = np.zeros(len(qk))
   # loop each body
   for i in range(len(bodies)):
@@ -92,16 +92,14 @@ def n_body_dpdt(qk, pk, bodies):
       if i != j:
         j_offset = j * 3
 
-        print(f"i: {i}, i_offset: {i_offset}, j: {j}, j_offset: {j_offset}")
-        print(f"G: {G}, Mass 1: {bodies[i].mass}, Mass 2: {bodies[j].mass}")
+        #print(f"i: {i}, i_offset: {i_offset}, j: {j}, j_offset: {j_offset}")
+        #print(f"G: {G}, Mass 1: {bodies[i].mass}, Mass 2: {bodies[j].mass}")
 
         r_ij = r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]])
 
         r_ij2 = r_dist(ri=qk[i_offset:i_offset+3], rj=qk[j_offset:j_offset+3])
 
         r_ij3 = np.linalg.norm([qk[i_offset:i_offset+3], qk[j_offset:j_offset+3]])
-
-        print(f"r distance: {r_ij}, r: {r_ij2}, numpy: {r_ij3}")
 
         dpdt[i_offset] -= ((G * bodies[i].mass * bodies[j].mass) / r_ij ** 3) * (qk[i_offset] - qk[j_offset])
 

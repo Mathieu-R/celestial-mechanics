@@ -18,9 +18,9 @@ class NBodySimulation():
     self.colors = {"Sun": 'y', "Jupiter": 'r', "Saturn": 'b'} # sun: orange, jupiter: red, saturn: blue
 
     self.solvers = [
-      #{"call": heun, "name": "Heun (RK2)"}#,
-      #{"call": rk4, "name": "RK4"},
-      #{"call": euler_symp, "name": "Euler Symplectique"},
+      {"call": heun, "name": "Heun (RK2)"},
+      {"call": rk4, "name": "RK4"},
+      {"call": euler_symp, "name": "Euler Symplectique"},
       {"call": stormer_verlet, "name": "Stormer Verlet"}
     ]
 
