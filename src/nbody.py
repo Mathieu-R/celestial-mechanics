@@ -74,7 +74,7 @@ class NBodySimulation():
       if body.name == "Sun":
         ax.plot(0, 0, "o", color="orange", markersize=3)
 
-      ax.plot(x, y, c=self.colors[body.name], label=body.name)
+      ax.plot(x, y, c=body.color, label=body.name)
 
     # limiting plot
     ax.set_xlim([-max_range,max_range])
@@ -129,9 +129,19 @@ class NBodySimulation():
     self.axes = self.fig.add_subplot(projection="3d")
 
     # parameters
-
+    self.axes.set_xlabel("x [a.u]")
+    self.axes.set_xlabel("y [a.u]")
+    self.axes.set_xlabel("z [a.u]")
 
     for body in self.bodies:
       body.line, = self.axes.plot(xs=np.zeros((self.nt)), ys=np.zeros((self.nt)), zs=np.zeros((self.nt)), color=body.color, label=body.name)
+
+    ani = animation.FuncAnimation(
+      fig=self.fig,
+      func=self.update,
+      frames=60,
+      interval=60,
+      repeat=False
+    )
 
 
