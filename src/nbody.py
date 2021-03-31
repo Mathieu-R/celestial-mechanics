@@ -129,6 +129,7 @@ class NBodySimulation():
     self.axes = self.fig.add_subplot(projection="3d")
 
     # parameters
+    self.axes.set_facecolor((0.5, 0.5, 0.5)) # 50% gray
     self.axes.set_xlabel("x [a.u]")
     self.axes.set_xlabel("y [a.u]")
     self.axes.set_xlabel("z [a.u]")
