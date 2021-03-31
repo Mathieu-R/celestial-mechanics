@@ -17,31 +17,53 @@ Sun = Body(name="Sun", initial_positions=sun_position0, initial_impulsions=sun_i
 Jupiter = Body(name="Jupiter", initial_positions=jupiter_position0, initial_impulsions=jupiter_impulsion0, mass=M_jup, color='r', markersize=8)
 Saturn = Body(name="Saturn", initial_positions=saturn_position0, initial_impulsions=saturn_impulsion0, mass=M_sat, color='b', markersize=7)
 
+bodies = {
+  "Sun": Sun,
+  "Jupiter": Jupiter,
+  "Saturn": Saturn
+}
+
 @click.command()
-@click.option("-number", "-n", type=int, default="3", help="2-Body problem or 3-Body problem")
-@click.option("--plot", "-p", default="static", help="static or animated plot")
-@click.option("--solver", "-s", default="stormer-verlet", help="solver (rk2, rk4, euler-symplectic, stormer-verlet)")
-def main(number, plot, solver):
+@click.option(
+  "--body", "-cb",
+  type=click.Choice(["Sun", "Jupiter", "Saturn"], case_sensitive=False),
+  multiple=True,
+  default=["Sun", "Jupiter"],
+  show_default=True,
+  help="Celestial body to simulate. You can add multiple bodies typing multiple times -cb"
+)
+@click.option(
+  "--plot", "-p",
+  type=click.Choice(["static", "animated"], case_sensitive=False),
+  default="static",
+  show_default=True,
+  help="(S)tatic or (A)nimated plot"
+)
+@click.option(
+  "--solver", "-s",
+  type=click.Choice(["rk2", "rk4", "euler-symplectic", "stormer-verlet"]),
+  default="stormer-verlet",
+  show_default=True,
+  help="Type of numerical scheme. Euler symplectic and Stormer-Verlet are symplectic schemes. Only needed for animation. For static plot, all the scheme are used at once to compute 4 subplots."
+)
+def main(body, plot, solver):
   # clear terminal (even history)
   print('\033c', end=None)
   # ascii art - for fun.
   print(pyfiglet.print_figlet("CELESTIAL"))
 
-  if number == 2:
-    twobody = NBodySimulation(bodies=[Sun, Jupiter], t0=t0, tN=tN, dt=dt)
-    twobody.simulate()
-    if plot == "static":
-      twobody.plot2D()
-    elif plot == "animated":
-      twobody.animate(solver)
+  nbody = NBodySimulation(
+    bodies=[bodies[b] for b in body],
+    t0=t0,
+    tN=tN,
+    dt=dt
+  )
 
-  elif number == 3:
-    threeBody = NBodySimulation(bodies=[Sun, Jupiter, Saturn], t0=t0, tN=tN, dt=dt)
-    if plot == "static":
-      threeBody.simulate()
-      threeBody.plot3D()
-    elif plot == "animated":
-      threeBody.animate(solver)
+  if plot == "static":
+    nbody.simulate()
+    nbody.plot3D()
+  elif plot == "animated":
+    nbody.animate(solver)
 
 if __name__ == "__main__":
   main()

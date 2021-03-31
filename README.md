@@ -1,7 +1,7 @@
 # celestial-mechanics
 Simulating Jupiter and Saturn orbiting around the Sun for 5000 years.
 
-### Running simulations
+### Installing
 Clone the project
 ```bash
 $ git clone https://github.com/Mathieu-R/celestial-mechanics
@@ -16,13 +16,37 @@ $ python3 -m pip install --upgrade pip
 
 Install required packages
 ```bash
-$ python3 -m pip install numpy matplotlib click astropy tqdm
+$ python3 -m pip install -r=requirements.txt
 ```
 
-Launch simulations
+### Launch simulations    
+Type `--help` command to show all the possible parameters that are available and how to launch a simulation.
+
 ```bash
-$ python3 index.py --type=2body --plot=static 
-$ python3 index.py --type=2body --plot=animated
-$ python3 index.py --type=3body --plot=static
-$ python3 index.py --type=3body --plot=animated
+$ python3 index.py --help
+Usage: index.py [OPTIONS]
+
+Options:
+  -cb, --body [Sun|Jupiter|Saturn]
+                                  Celestial body to simulate. You can add
+                                  multiple bodies typing multiple times -cb
+                                  [default: Sun, Jupiter]
+
+  -p, --plot [static|animated]    (S)tatic or (A)nimated plot  [default:
+                                  static]
+
+  -s, --solver [rk2|rk4|euler-symplectic|stormer-verlet]
+                                  Type of numerical scheme. Euler symplectic
+                                  and Stormer-Verlet are symplectic schemes.
+                                  Only needed for animation. For static plot, 
+                                  all the scheme are used at once to compute 
+                                  4 subplots.
+                                  [default: stormer-verlet]
+
+  --help                          Show this message and exit.
+```
+
+For example: 
+```bash
+$ python3 index.py -cb Sun -cb Jupiter -cb Mars -p animated -s stormer-verlet
 ```
