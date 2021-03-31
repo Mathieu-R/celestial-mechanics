@@ -18,14 +18,14 @@ Jupiter = Body("Jupiter", jupiter_position0, jupiter_impulsion0, M_jup, 'r')
 Saturn = Body("Saturn", saturn_position0, saturn_impulsion0, M_sat, 'b')
 
 @click.command()
-@click.option("--stype", default="twobody", help="2-Body problem or 3-Body problem")
+@click.option("--n", default="3", help="2-Body problem or 3-Body problem")
 @click.option("--plot", default="static", help="static or animated plot")
-def main(stype, plot):
+def main(n, plot):
   # clear terminal (even history)
   print('\033c', end=None)
   # ascii art - for fun.
   print(pyfiglet.print_figlet("CELESTIAL"))
-  if stype == "twobody":
+  if n == "2":
     twobody = NBodySimulation(bodies=[Sun, Jupiter], t0=t0, tN=tN, dt=dt)
     twobody.simulate()
     if plot == "static":
@@ -33,10 +33,10 @@ def main(stype, plot):
     elif plot == "animated":
       twobody.animate()
 
-  elif stype == "threebody":
+  elif n == "3":
     threeBody = NBodySimulation(bodies=[Sun, Jupiter, Saturn], t0=t0, tN=tN, dt=dt)
-    threeBody.simulate()
     if plot == "static":
+      threeBody.simulate()
       threeBody.plot3D()
     elif plot == "animated":
       threeBody.animate()

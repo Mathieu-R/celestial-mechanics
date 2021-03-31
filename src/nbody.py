@@ -122,7 +122,7 @@ class NBodySimulation():
     plt.show()
 
   def update(index):
-    pass
+    print(index)
 
   def animate(self):
     self.fig = plt.figure(figsize=(8, 8))
