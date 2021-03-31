@@ -1,3 +1,4 @@
+from consts import DATA_SUB_INTERVAL_LENGTH
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,15 +20,15 @@ class NBodySimulation():
     self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet"]
 
     self.solvers = [
-      {"call": heun, "name": "Heun (RK2)"},
-      {"call": rk4, "name": "RK4"},
-      {"call": euler_symp, "name": "Euler Symplectique"},
-      {"call": stormer_verlet, "name": "Stormer Verlet"}
+      {"call": heun, "name": "Heun (RK2)", "bodies": self.bodies},
+      {"call": rk4, "name": "RK4", "bodies": self.bodies},
+      {"call": euler_symp, "name": "Euler Symplectique", "bodies": self.bodies},
+      {"call": stormer_verlet, "name": "Stormer Verlet", "bodies": self.bodies}
     ]
 
     self.results = []
 
-  def solve(self, solver):
+  def solve(self, solver, dt, nt):
     # positions and impulsions state vectors
     # each body is in \R^3 (3D space x, y, z)
     q = np.zeros((self.nt, len(self.bodies) * 3))
@@ -37,12 +38,12 @@ class NBodySimulation():
     q[0] = np.concatenate(np.array([body.initial_positions for body in self.bodies]))
     p[0] = np.concatenate(np.array([body.initial_impulsions for body in self.bodies]))
 
-    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=self.dt, nt=nt, bodies=self.bodies)
+    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=dt, nt=nt, bodies=self.bodies)
 
   def simulate(self):
     self.results = []
     for solver in self.solvers:
-      q, p = self.solve(solver["call"])
+      q, p = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt)
       self.results.append({"solver": solver["name"], "q": q, "p": p})
 
   def plot2D(self):
@@ -120,8 +121,37 @@ class NBodySimulation():
 
     plt.show()
 
-  def update(index):
+  def update(self, index):
     print(index)
+    if index > self.tN:
+      return
+
+    sub_interval_t0 = (index - 1) * DATA_SUB_INTERVAL_LENGTH
+    sub_interval_tk = (index) * DATA_SUB_INTERVAL_LENGTH
+
+    nt = int((sub_interval_tk - sub_interval_t0) / self.dt)
+
+    self.results = []
+
+    # for each solvers (RK2, RK4, Euler, Stormer-Verlet)
+    for solver in self.solvers:
+      # simulate on the sub-interval
+      q, p = self.solve(solver=solver["call"], dt=self.dt, nt=nt)
+      #self.results.append({"solver": solver["name"], "q": q, "p": p})
+
+
+      for (body_index, body) in enumerate(solver["bodies"]):
+        # N bodies : [x1, y1, z1, ..., xN, yN, zN]
+        x_index = body_index * 3
+        y_index = (body_index * 3) + 1
+        z_index = (body_index * 3) + 2
+
+        # update initial conditions for the next sub-interval
+        body.initial_positions = q[-1, x_index:z_index+1]
+        body.initial_impulsions = p[-1, x_index:z_index+1]
+
+        # update plot
+        body.line.set_data(q[:,x_index], q[:y_index], q[:z_index])
 
   def animate(self):
     self.fig = plt.figure(figsize=(8, 8))
@@ -129,9 +159,14 @@ class NBodySimulation():
 
     # parameters
     self.axes.set_facecolor((0.5, 0.5, 0.5)) # 50% gray
+    self.axes.grid(False)
+    self.axes.set_xticklabels([])
+    self.axes.set_yticklabels([])
     self.axes.set_xlabel("x [a.u]")
     self.axes.set_xlabel("y [a.u]")
     self.axes.set_xlabel("z [a.u]")
+
+    print("HELLO")
 
     for body in self.bodies:
       body.line, = self.axes.plot(xs=np.zeros((self.nt)), ys=np.zeros((self.nt)), zs=np.zeros((self.nt)), color=body.color, label=body.name)
@@ -143,5 +178,7 @@ class NBodySimulation():
       interval=60,
       repeat=False
     )
+
+    plt.show()
 
 

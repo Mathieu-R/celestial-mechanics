@@ -38,3 +38,7 @@ saturn_impulsion0 = [0.0042287765130 * M_sat, 0.0030656447687 * M_sat, 0.0010842
 t0 = 0
 tN = 50 * 365.25 # integration over 5000 years
 dt = 30 # time_step : 30 days
+
+# refresh times for animation
+DATA_SUB_INTERVAL_LENGTH = 1 * 365.25 # simulation subinterbal is one year length
+DATA_PLOT_REFRESH = 30
