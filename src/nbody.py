@@ -26,24 +26,47 @@ class NBodySimulation():
       {"call": stormer_verlet, "name": "Stormer Verlet", "bodies": self.bodies}
     ]
 
+    self.solvers2 = {
+      "rk2": {
+        "call": heun,
+        "name": "Heun (RK2)",
+        "bodies": self.bodies
+      },
+      "rk4": {
+        "call": rk4,
+        "name": "RK4",
+        "bodies": self.bodies
+      },
+      "euler-sympectic": {
+        "call": euler_symp,
+        "name": "Euler Symplectique",
+        "bodies": self.bodies
+      },
+      "stormer-verlet": {
+        "call": stormer_verlet,
+        "name": "Stormer Verlet",
+        "bodies": self.bodies
+      }
+    }
+
     self.results = []
 
-  def solve(self, solver, dt, nt):
+  def solve(self, solver, dt, nt, bodies):
     # positions and impulsions state vectors
     # each body is in \R^3 (3D space x, y, z)
     q = np.zeros((self.nt, len(self.bodies) * 3))
     p = np.zeros((self.nt, len(self.bodies) * 3))
 
     # set initial conditions
-    q[0] = np.concatenate(np.array([body.initial_positions for body in self.bodies]))
-    p[0] = np.concatenate(np.array([body.initial_impulsions for body in self.bodies]))
+    q[0] = np.concatenate(np.array([body.initial_positions for body in bodies]))
+    p[0] = np.concatenate(np.array([body.initial_impulsions for body in bodies]))
 
-    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=dt, nt=nt, bodies=self.bodies)
+    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=dt, nt=nt, bodies=bodies)
 
   def simulate(self):
     self.results = []
     for solver in self.solvers:
-      q, p = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt)
+      q, p = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
       self.results.append({"solver": solver["name"], "q": q, "p": p})
 
   def plot2D(self):
@@ -121,39 +144,47 @@ class NBodySimulation():
 
     plt.show()
 
-  def update(self, index):
-    print(index)
+  def update(self, index, solver_name):
+    print(index, solver_name)
     if index > self.tN:
       return
 
     sub_interval_t0 = (index - 1) * DATA_SUB_INTERVAL_LENGTH
     sub_interval_tk = (index) * DATA_SUB_INTERVAL_LENGTH
 
+    last_index = int(sub_interval_tk / self.dt) - 1
+    print("last index", last_index)
+
     nt = int((sub_interval_tk - sub_interval_t0) / self.dt)
+    print("nt", nt)
 
-    self.results = []
+    # get the solver
+    solver = self.solvers2[solver_name]
 
-    # for each solvers (RK2, RK4, Euler, Stormer-Verlet)
-    for solver in self.solvers:
-      # simulate on the sub-interval
-      q, p = self.solve(solver=solver["call"], dt=self.dt, nt=nt)
-      #self.results.append({"solver": solver["name"], "q": q, "p": p})
+    # simulate on the sub-interval
+    q, p = self.solve(solver=solver["call"], dt=self.dt, nt=nt, bodies=solver["bodies"])
 
+    for (body_index, body) in enumerate(solver["bodies"]):
+      # N bodies : [x1, y1, z1, ..., xN, yN, zN]
+      x_index = body_index * 3
+      y_index = (body_index * 3) + 1
+      z_index = (body_index * 3) + 2
 
-      for (body_index, body) in enumerate(solver["bodies"]):
-        # N bodies : [x1, y1, z1, ..., xN, yN, zN]
-        x_index = body_index * 3
-        y_index = (body_index * 3) + 1
-        z_index = (body_index * 3) + 2
+      # update initial conditions for the next sub-interval
+      body.initial_positions = q[last_index, x_index:z_index+1]
+      body.initial_impulsions = p[last_index, x_index:z_index+1]
 
-        # update initial conditions for the next sub-interval
-        body.initial_positions = q[-1, x_index:z_index+1]
-        body.initial_impulsions = p[-1, x_index:z_index+1]
+      #print(q, p)
+      print(body.initial_positions)
+      print(body.initial_impulsions)
 
-        # update plot
-        body.line.set_data(q[:,x_index], q[:y_index], q[:z_index])
+      # update plot
+      body.line.set_xdata(q[0:last_index,x_index])
+      body.line.set_ydata(q[0:last_index,y_index])
+      # https://stackoverflow.com/questions/46685326/how-to-set-zdata-for-a-line3d-object-in-python-matplotlib
+      body.line.set_3d_properties(q[0:last_index,z_index])
 
-  def animate(self):
+  def animate(self, solver_name):
     self.fig = plt.figure(figsize=(8, 8))
     self.axes = self.fig.add_subplot(projection="3d")
 
@@ -166,16 +197,27 @@ class NBodySimulation():
     self.axes.set_xlabel("y [a.u]")
     self.axes.set_xlabel("z [a.u]")
 
-    print("HELLO")
+    #self.time_text = self.axes.text()
 
     for body in self.bodies:
-      body.line, = self.axes.plot(xs=np.zeros((self.nt)), ys=np.zeros((self.nt)), zs=np.zeros((self.nt)), color=body.color, label=body.name)
+      body.line, = self.axes.plot(
+        xs=np.zeros((self.nt)),
+        ys=np.zeros((self.nt)),
+        zs=np.zeros((self.nt)),
+        color=body.color,
+        linewidth=2,
+        markevery=10000,
+        markersize=body.markersize,
+        markerfacecolor=body.color,
+        label=body.name
+      )
 
     ani = animation.FuncAnimation(
       fig=self.fig,
       func=self.update,
-      frames=60,
-      interval=60,
+      fargs=(solver_name,),
+      frames=range(1, int(self.tN / DATA_SUB_INTERVAL_LENGTH)),
+      interval=self.dt,
       repeat=False
     )
 
