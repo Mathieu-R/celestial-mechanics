@@ -14,6 +14,8 @@ class NBodySimulation():
     self.t0 = t0
     self.tN = tN
     self.dt = dt
+    # number of time step
+    self.nt = int((self.tN - self.t0) / self.dt)
     self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet"]
 
     self.solvers = [
@@ -26,9 +28,6 @@ class NBodySimulation():
     self.results = []
 
   def solve(self, solver):
-    # number of time step
-    self.nt = int((self.tN - self.t0) / self.dt)
-
     # positions and impulsions state vectors
     # each body is in \R^3 (3D space x, y, z)
     q = np.zeros((self.nt, len(self.bodies) * 3))
