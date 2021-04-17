@@ -1,4 +1,3 @@
-from consts import DATA_SUB_INTERVAL_LENGTH
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,6 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 from .edo import (n_body_dqdt, n_body_dpdt)
 from .solvers import (heun, rk4, euler_symp, stormer_verlet)
+from consts import DATA_SUB_INTERVAL_LENGTH
 
 class NBodySimulation():
   def __init__(self, bodies, t0, tN, dt):
@@ -15,6 +15,16 @@ class NBodySimulation():
     self.t0 = t0
     self.tN = tN
     self.dt = dt
+
+    self.total_mass = sum(body.mass for body in self.bodies)
+    self.mean_pos = sum(body.initial_positions * body.mass for body in self.bodies) / self.total_mass
+    self.mean_vel = sum(body.initial_impulsions for body in self.bodies) / self.total_mass
+
+    # shift the coordinate frame so that the barycenter is at rest.
+    for body in self.bodies:
+      body.initial_positions -= self.mean_pos
+      body.initial_impulsions -= body.mass * self.mean_vel
+
     # number of time step
     self.nt = int((self.tN - self.t0) / self.dt)
     self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet"]
@@ -112,7 +122,6 @@ class NBodySimulation():
 
     # loop for each result (corresponding to a specific solving method)
     for (index, result) in enumerate(self.results):
-      print(result["solver"], result["q"][-1])
       # create a 3D plot
       ax = self.fig.add_subplot(2, 2, index + 1, projection="3d")
       # set plot parameters
@@ -129,7 +138,6 @@ class NBodySimulation():
         x, y, z = result["q"][:,x_index], result["q"][:,y_index], result["q"][:,z_index]
 
         max_dim = max(max(x), max(y), max(z))
-        #print(max(x), max(y), max(z))
         if max_dim > max_range:
           max_range = max_dim
 
@@ -144,83 +152,109 @@ class NBodySimulation():
 
     plt.show()
 
-  def update(self, index, solver_name):
-    print(index, solver_name)
-    if index > self.tN:
-      return
+  def update(self, index):
+    for i in range(len(self.bodies)):
+      x_index = (i * 3)
+      y_index = (i * 3) + 1
+      z_index = (i * 3) + 2
 
-    sub_interval_t0 = (index - 1) * DATA_SUB_INTERVAL_LENGTH
-    sub_interval_tk = (index) * DATA_SUB_INTERVAL_LENGTH
+      x = self.q[:index,x_index]
+      y = self.q[:index,y_index]
+      z = self.q[:index,z_index]
 
-    last_index = int(sub_interval_tk / self.dt) - 1
-    print("last index", last_index)
+      self.lines[i].set_data_3d(x, y, z)
 
-    nt = int((sub_interval_tk - sub_interval_t0) / self.dt)
-    print("nt", nt)
+      # point is the "head of the line"
+      self.points[i].set_data_3d(x[-1:], y[-1:], z[-1:])
 
-    # get the solver
-    solver = self.solvers2[solver_name]
+    return self.lines + self.points
 
-    # simulate on the sub-interval
-    q, p = self.solve(solver=solver["call"], dt=self.dt, nt=nt, bodies=solver["bodies"])
+  def init(self):
+    for line, point in zip(self.lines, self.points):
+      line.set_data_3d([], [], [])
+      point.set_data_3d([], [], [])
 
-    for (body_index, body) in enumerate(solver["bodies"]):
-      # N bodies : [x1, y1, z1, ..., xN, yN, zN]
-      x_index = body_index * 3
-      y_index = (body_index * 3) + 1
-      z_index = (body_index * 3) + 2
-
-      # update initial conditions for the next sub-interval
-      body.initial_positions = q[last_index, x_index:z_index+1]
-      body.initial_impulsions = p[last_index, x_index:z_index+1]
-
-      #print(q, p)
-      print(body.initial_positions)
-      print(body.initial_impulsions)
-
-      # update plot
-      body.line.set_xdata(q[0:last_index,x_index])
-      body.line.set_ydata(q[0:last_index,y_index])
-      # https://stackoverflow.com/questions/46685326/how-to-set-zdata-for-a-line3d-object-in-python-matplotlib
-      body.line.set_3d_properties(q[0:last_index,z_index])
+    return self.lines + self.points
 
   def animate(self, solver_name):
     self.fig = plt.figure(figsize=(8, 8))
     self.axes = self.fig.add_subplot(projection="3d")
 
     # parameters
-    self.axes.set_facecolor((0.5, 0.5, 0.5)) # 50% gray
+    self.axes.set_facecolor((1, 1, 1))
     self.axes.grid(False)
     self.axes.set_xticklabels([])
     self.axes.set_yticklabels([])
     self.axes.set_xlabel("x [a.u]")
-    self.axes.set_xlabel("y [a.u]")
-    self.axes.set_xlabel("z [a.u]")
+    self.axes.set_ylabel("y [a.u]")
+    self.axes.set_zlabel("z [a.u]")
 
     #self.time_text = self.axes.text()
 
-    for body in self.bodies:
-      body.line, = self.axes.plot(
-        xs=np.zeros((self.nt)),
-        ys=np.zeros((self.nt)),
-        zs=np.zeros((self.nt)),
+    self.lines = sum([
+      self.axes.plot(
+        [], [], [],
+        '-',
         color=body.color,
         linewidth=2,
         markevery=10000,
         markersize=body.markersize,
         markerfacecolor=body.color,
         label=body.name
-      )
+      ) for body in self.bodies
+    ], [])
+
+    self.points = sum([
+      self.axes.plot(
+        [], [], [],
+        'o',
+        color=body.color,
+        linewidth=2,
+        markevery=10000,
+        markersize=body.markersize,
+        markerfacecolor=body.color,
+        label=body.name
+      ) for body in self.bodies
+    ], [])
+
+    self.axes.legend()
+
+    # solve for that specific solver
+    solver = self.solvers2[solver_name]
+    self.q, self.p = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
+
+    max_range = self.limit_plot(self.q)
+
+    # limiting plot
+    self.axes.set_xlim([-max_range,max_range])
+    self.axes.set_ylim([-max_range,max_range])
+    self.axes.set_zlim([-max_range,max_range])
 
     ani = animation.FuncAnimation(
       fig=self.fig,
       func=self.update,
-      fargs=(solver_name,),
-      frames=range(1, int(self.tN / DATA_SUB_INTERVAL_LENGTH)),
-      interval=self.dt,
-      repeat=False
+      init_func=self.init,
+      frames=4000,
+      interval=5,
+      blit=True
     )
 
     plt.show()
+
+  def limit_plot(self, q):
+    max_range = 0
+
+    for (ind, body) in enumerate(self.bodies):
+      x_index = (ind * 3)
+      y_index = (ind * 3) + 1
+      z_index = (ind * 3) + 2
+
+      x, y, z = q[:,x_index], q[:,y_index], q[:,z_index]
+
+      max_dim = max(max(x), max(y), max(z))
+      if max_dim > max_range:
+        max_range = max_dim
+
+    return max_range
 
 

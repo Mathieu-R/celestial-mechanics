@@ -3,7 +3,6 @@ import click
 import matplotlib.pyplot as plt
 import pyfiglet # ascii art
 
-from src.two_body import TwoBody
 from src.nbody import NBodySimulation
 from src.body import Body
 
