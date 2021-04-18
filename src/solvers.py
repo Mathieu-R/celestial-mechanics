@@ -1,6 +1,8 @@
 import numpy as np
 from tqdm import tqdm
 
+from .edo import hamiltonian
+
 def rk2_derivatives_dqdt(edo, qk, pk, dt, bodies):
   k1 = dt * edo(qk, pk, bodies)
   k2 = dt * edo(qk + (dt * k1), pk, bodies)
@@ -11,14 +13,16 @@ def rk2_derivatives_dpdt(edo, qk, pk, dt, bodies):
   k2 = dt * edo(qk, pk + (dt * k1), bodies)
   return (k1 + k2) / 2.
 
-def heun(dqdt, dpdt, q, p, dt, nt, bodies):
+def heun(dqdt, dpdt, q, p, dt, nt, bodies, energy):
   for k in tqdm(range(0, nt - 1), desc="heun"):
     qk, pk = q[k], p[k]
     #print("rk2 -- iteration:", k, qk)
     q[k + 1] = qk + rk2_derivatives_dqdt(dqdt, qk, pk, dt, bodies)
     p[k + 1] = pk + rk2_derivatives_dpdt(dpdt, qk, pk, dt, bodies)
 
-  return q, p
+    energy[k + 1] = hamiltonian(q[k+1], p[k+1], bodies)
+
+  return q, p, energy
 
 
 def rk4_derivatives_dqdt(edo, qk, pk, dt, bodies):
@@ -35,27 +39,31 @@ def rk4_derivatives_dpdt(edo, qk, pk, dt, bodies):
   k4 = dt * edo(qk, pk + (dt * k3), bodies)
   return (k1 + 2*k2 + 2*k3 + k4) / 6.
 
-def rk4(dqdt, dpdt, q, p, dt, nt, bodies):
+def rk4(dqdt, dpdt, q, p, dt, nt, bodies, energy):
   for k in tqdm(range(0, nt - 1), desc="rk4"):
     qk, pk = q[k], p[k]
     #print("rk4 -- iteration:", k, qk)
     q[k + 1] = qk + rk4_derivatives_dqdt(dqdt, qk, pk, dt, bodies)
     p[k + 1] = pk + rk4_derivatives_dpdt(dpdt, qk, pk, dt, bodies)
 
-  return q, p
+    energy[k + 1] = hamiltonian(q[k+1], p[k+1], bodies)
+
+  return q, p, energy
 
 
-def euler_symp(dqdt, dpdt, q, p, dt, nt, bodies):
+def euler_symp(dqdt, dpdt, q, p, dt, nt, bodies, energy):
   for k in tqdm(range(0, nt - 1), desc="euler-symplectic"):
     qk, pk = q[k], p[k]
     #print("euler -- iteration:", k, qk)
     p[k + 1] = pk + dt * dpdt(qk, pk, bodies)
     q[k + 1] = qk + dt * dqdt(qk, p[k + 1], bodies)
 
-  return q, p
+    energy[k + 1] = hamiltonian(q[k+1], p[k+1], bodies)
+
+  return q, p, energy
 
 
-def stormer_verlet(dqdt, dpdt, q, p, dt, nt, bodies):
+def stormer_verlet(dqdt, dpdt, q, p, dt, nt, bodies, energy):
   for k in tqdm(range(0, nt - 1), desc="stormer-verlet"):
     qk, pk = q[k], p[k]
     #print("stormer-verlet -- iteration:", k, qk)
@@ -63,4 +71,6 @@ def stormer_verlet(dqdt, dpdt, q, p, dt, nt, bodies):
     q[k + 1] = qk + (dt * dqdt(qk, p_half, bodies))
     p[k + 1] = p_half + ((dt / 2) * dpdt(q[k + 1], p_half, bodies))
 
-  return q, p
+    energy[k + 1] = hamiltonian(q[k+1], p[k+1], bodies)
+
+  return q, p, energy

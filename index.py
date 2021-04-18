@@ -61,6 +61,7 @@ def main(body, plot, solver):
   if plot == "static":
     nbody.simulate()
     nbody.plot3D()
+    nbody.plot_energy()
   elif plot == "animated":
     nbody.animate(solver)
 

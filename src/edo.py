@@ -1,6 +1,26 @@
 import numpy as np
 from consts import (M_sun as m1, M_jup as m2, M_sat as m3, G)
 
+def hamiltonian(qk, pk, bodies):
+  qk = qk.reshape([-1, 3])
+  pk = pk.reshape([-1, 3])
+
+  p_sum = 0
+  for i, pi in enumerate(pk):
+    p_sum += (pi ** 2) / 2 * bodies[i].mass
+
+  q_sum = 0
+  for i in range(len(bodies)):
+    for j in range(len(bodies)):
+      if i != j:
+        # compute distance between mass i and mass j
+        r_ij = r_dist(qk[i], qk[j])
+        q_sum += ((G * bodies[i].mass * bodies[j].mass) / r_ij)
+
+  # return hamiltonian (= energy)
+  return np.linalg.norm(p_sum + q_sum)
+
+
 def n_body_dqdt(qk, pk, bodies):
   """
   :param qk: n-body position state vector => qk: [x1, y1, z1, x2, y2, z2,..., xN, yN, zN]

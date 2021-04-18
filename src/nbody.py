@@ -1,11 +1,10 @@
-import random
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 from mpl_toolkits.mplot3d import Axes3D
 
-from .edo import (n_body_dqdt, n_body_dpdt)
+from .edo import (hamiltonian, n_body_dqdt, n_body_dpdt)
 from .solvers import (heun, rk4, euler_symp, stormer_verlet)
 from consts import DATA_SUB_INTERVAL_LENGTH
 
@@ -27,6 +26,7 @@ class NBodySimulation():
 
     # number of time step
     self.nt = int((self.tN - self.t0) / self.dt)
+    self.time_mesh = np.linspace(start=self.t0, stop=self.tN, num=self.nt)
     self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet"]
 
     self.solvers = [
@@ -67,21 +67,28 @@ class NBodySimulation():
     q = np.zeros((self.nt, len(self.bodies) * 3))
     p = np.zeros((self.nt, len(self.bodies) * 3))
 
+    # energy mesh -- computed from the hamiltonian
+    energy = np.zeros(self.nt)
+
     # set initial conditions
     q[0] = np.concatenate(np.array([body.initial_positions for body in bodies]))
     p[0] = np.concatenate(np.array([body.initial_impulsions for body in bodies]))
 
-    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=dt, nt=nt, bodies=bodies)
+    # set initial energy
+    print(energy)
+    print(hamiltonian(qk=q[0], pk=p[0], bodies=bodies))
+    energy[0] = hamiltonian(qk=q[0], pk=p[0], bodies=bodies)
+
+    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=dt, nt=nt, bodies=bodies, energy=energy)
 
   def simulate(self):
     self.results = []
     for solver in self.solvers:
-      q, p = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
-      self.results.append({"solver": solver["name"], "q": q, "p": p})
+      q, p, energy = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
+      self.results.append({"solver": solver["name"], "q": q, "p": p, "energy": energy})
 
   def plot2D(self):
     self.fig, ax = plt.subplots(1, 1, figsize=(8, 8))
-
 
     # set plot parameters
     result = self.results[0]
@@ -149,6 +156,21 @@ class NBodySimulation():
       ax.set_zlim([-max_range,max_range])
 
       #ax.legend()
+
+    plt.show()
+
+  def plot_energy(self):
+    self.fig = plt.figure(figsize=(8,8))
+
+    for (index, result) in enumerate(self.results):
+      ax = self.fig.add_subplot(4, 1, index + 1)
+
+      solver_name = result["solver"]
+      energy = result["energy"]
+      ax.plot(self.time_mesh / 365.25, energy)
+      ax.set_xlabel("Temps [années]")
+      ax.set_ylabel("Energie totale [J]")
+      ax.set_title(f"Energie: {solver_name}")
 
     plt.show()
 
