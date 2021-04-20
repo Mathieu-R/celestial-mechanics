@@ -198,7 +198,7 @@ class NBodySimulation():
 
     return self.lines + self.points
 
-  def animate(self, solver_name):
+  def animate(self, solver_name, save):
     self.fig = plt.figure(figsize=(8, 8))
     self.axes = self.fig.add_subplot(projection="3d")
 
@@ -243,7 +243,7 @@ class NBodySimulation():
 
     # solve for that specific solver
     solver = self.solvers2[solver_name]
-    self.q, self.p = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
+    self.q, self.p, energy = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
 
     max_range = self.limit_plot(self.q)
 
@@ -260,6 +260,9 @@ class NBodySimulation():
       interval=5,
       blit=True
     )
+
+    if save:
+      ani.save(filename=f"../n-body-{solver_name}.gif", writer="imagemagick", fps=60)
 
     plt.show()
 

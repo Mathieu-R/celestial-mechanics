@@ -45,7 +45,12 @@ bodies = {
   show_default=True,
   help="Type of numerical scheme. Euler symplectic and Stormer-Verlet are symplectic schemes. Only needed for animation. For static plot, all the scheme are used at once to compute 4 subplots."
 )
-def main(body, plot, solver):
+@click.option(
+  "--save", "-sa",
+  is_flag=True,
+  help="Save plot or animation"
+)
+def main(body, plot, solver, save):
   # clear terminal (even history)
   print('\033c', end=None)
   # ascii art - for fun.
@@ -63,7 +68,7 @@ def main(body, plot, solver):
     nbody.plot3D()
     nbody.plot_energy()
   elif plot == "animated":
-    nbody.animate(solver)
+    nbody.animate(solver, save)
 
 if __name__ == "__main__":
   main()
