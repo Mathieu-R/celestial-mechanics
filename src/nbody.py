@@ -4,12 +4,14 @@ import matplotlib.animation as animation
 
 from mpl_toolkits.mplot3d import Axes3D
 
-from .edo import (hamiltonian, n_body_dqdt, n_body_dpdt)
-from .solvers import (heun, rk4, euler_symp, stormer_verlet)
+from .edo import (hamiltonian, compute_angular_momentum, n_body_dqdt, n_body_dpdt)
+from .solvers import (heun, euler_symp, stormer_verlet)
 from consts import DATA_SUB_INTERVAL_LENGTH
 
+from utils import (set_size, set_size_square_plot)
+
 class NBodySimulation():
-  def __init__(self, bodies, t0, tN, dt):
+  def __init__(self, bodies, t0, tN, dt, options):
     self.bodies = bodies
     self.t0 = t0
     self.tN = tN
@@ -27,11 +29,10 @@ class NBodySimulation():
     # number of time step
     self.nt = int((self.tN - self.t0) / self.dt)
     self.time_mesh = np.linspace(start=self.t0, stop=self.tN, num=self.nt)
-    self.legends = ["Heun (RK2)", "RK4", "Euler Symplectique", "Stormer-Verlet"]
+    self.legends = ["Heun (RK2)", "Euler Symplectique", "Stormer-Verlet"]
 
     self.solvers = [
       {"call": heun, "name": "Heun (RK2)", "bodies": self.bodies},
-      {"call": rk4, "name": "RK4", "bodies": self.bodies},
       {"call": euler_symp, "name": "Euler Symplectique", "bodies": self.bodies},
       {"call": stormer_verlet, "name": "Stormer Verlet", "bodies": self.bodies}
     ]
@@ -40,11 +41,6 @@ class NBodySimulation():
       "rk2": {
         "call": heun,
         "name": "Heun (RK2)",
-        "bodies": self.bodies
-      },
-      "rk4": {
-        "call": rk4,
-        "name": "RK4",
         "bodies": self.bodies
       },
       "euler-sympectic": {
@@ -59,6 +55,11 @@ class NBodySimulation():
       }
     }
 
+    if options["save"]:
+      self.figure_options = set_size(width="full-size", subplots=(1,3))
+    else:
+      self.figure_options = 8,8
+
     self.results = []
 
   def solve(self, solver, dt, nt, bodies):
@@ -69,23 +70,26 @@ class NBodySimulation():
 
     # energy mesh -- computed from the hamiltonian
     energy = np.zeros(self.nt)
+    # angular momentum mesh
+    angular_momentum = np.zeros(self.nt)
 
     # set initial conditions
     q[0] = np.concatenate(np.array([body.initial_positions for body in bodies]))
     p[0] = np.concatenate(np.array([body.initial_impulsions for body in bodies]))
 
     # set initial energy
-    print(energy)
-    print(hamiltonian(qk=q[0], pk=p[0], bodies=bodies))
+    #print(energy)
+    #print(hamiltonian(qk=q[0], pk=p[0], bodies=bodies))
     energy[0] = hamiltonian(qk=q[0], pk=p[0], bodies=bodies)
+    angular_momentum[0] = compute_angular_momentum(qk=q[0], pk=p[0], bodies=bodies)
 
-    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=dt, nt=nt, bodies=bodies, energy=energy)
+    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=dt, nt=nt, bodies=bodies, energy=energy, angular_momentum=angular_momentum)
 
   def simulate(self):
     self.results = []
     for solver in self.solvers:
-      q, p, energy = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
-      self.results.append({"solver": solver["name"], "q": q, "p": p, "energy": energy})
+      q, p, energy, angular_momentum = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
+      self.results.append({"solver": solver["name"], "q": q, "p": p, "energy": energy, "angular_momentum": angular_momentum})
 
   def plot2D(self):
     self.fig, ax = plt.subplots(1, 1, figsize=(8, 8))
@@ -125,12 +129,12 @@ class NBodySimulation():
     plt.show()
 
   def plot3D(self):
-    self.fig = plt.figure(figsize=(8,8))
+    self.fig = plt.figure(figsize=(self.figure_options))
 
     # loop for each result (corresponding to a specific solving method)
     for (index, result) in enumerate(self.results):
       # create a 3D plot
-      ax = self.fig.add_subplot(2, 2, index + 1, projection="3d")
+      ax = self.fig.add_subplot(1, 3, index + 1, projection="3d")
       # set plot parameters
       ax.set_title(result["solver"])
 
@@ -163,7 +167,7 @@ class NBodySimulation():
     self.fig = plt.figure(figsize=(8,8))
 
     for (index, result) in enumerate(self.results):
-      ax = self.fig.add_subplot(4, 1, index + 1)
+      ax = self.fig.add_subplot(3, 1, index + 1)
 
       solver_name = result["solver"]
       energy = result["energy"]
@@ -171,6 +175,24 @@ class NBodySimulation():
       ax.set_xlabel("Temps [années]")
       ax.set_ylabel("Energie totale [J]")
       ax.set_title(f"Energie: {solver_name}")
+
+    plt.show()
+
+  def plot_angular_momentum(self):
+    self.fig = plt.figure(figsize=(8,8))
+
+    for (index, result) in enumerate(self.results):
+      ax = self.fig.add_subplot(3, 1, index + 1)
+
+      solver_name = result["solver"]
+      angular_momentum = result["angular_momentum"]
+
+      for (ind, body) in enumerate(self.bodies):
+        ax.plot(self.time_mesh / 365.25, angular_momentum[:,ind], label=body.name)
+
+      ax.set_xlabel("Temps [années]")
+      ax.set_ylabel("Moment angulaire")
+      ax.set_title(f"Moment angulaire: {solver_name}")
 
     plt.show()
 

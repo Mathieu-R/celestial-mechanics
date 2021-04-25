@@ -20,6 +20,26 @@ def hamiltonian(qk, pk, bodies):
   # return hamiltonian (= energy)
   return np.linalg.norm(p_sum + q_sum)
 
+def compute_angular_momentum(qk, pk, bodies):
+  qk = qk.reshape([-1, 3])
+  pk = pk.reshape([-1, 3])
+
+  Lk = np.zeros(qk.shape)
+
+  for i in range(len(bodies)):
+    pi, qi = qk[i], pk[i]
+    vi = pi / bodies[i].mass
+
+    rdotv = np.dot(qi, vi)
+    rnorm = np.linalg.norm(qi)
+    vnorm = np.linalg.norm(vi)
+
+    # r \cdot v = ||r|| ||v|| \cos(\theta)
+    theta = np.arccos(rdotv / (rnorm * vnorm))
+    # L = r x mv = m ||r|| ||v|| \sin(\theta)
+    L = bodies[i].mass * rnorm * vnorm * np.sin(theta)
+    Lk[i] = L
+
 
 def n_body_dqdt(qk, pk, bodies):
   """

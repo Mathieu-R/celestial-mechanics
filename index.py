@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.9
 import click
+from click.decorators import option
 import matplotlib.pyplot as plt
 import pyfiglet # ascii art
 
@@ -40,7 +41,7 @@ bodies = {
 )
 @click.option(
   "--solver", "-s",
-  type=click.Choice(["rk2", "rk4", "euler-symplectic", "stormer-verlet"]),
+  type=click.Choice(["heun", "euler-symplectic", "stormer-verlet"]),
   default="stormer-verlet",
   show_default=True,
   help="Type of numerical scheme. Euler symplectic and Stormer-Verlet are symplectic schemes. Only needed for animation. For static plot, all the scheme are used at once to compute 4 subplots."
@@ -56,17 +57,21 @@ def main(body, plot, solver, save):
   # ascii art - for fun.
   print(pyfiglet.print_figlet("CELESTIAL"))
 
+  options = {"save": save}
+
   nbody = NBodySimulation(
     bodies=[bodies[b] for b in body],
     t0=t0,
     tN=tN,
-    dt=dt
+    dt=dt,
+    options=options
   )
 
   if plot == "static":
     nbody.simulate()
     nbody.plot3D()
     nbody.plot_energy()
+    nbody.plot_angular_momentum()
   elif plot == "animated":
     nbody.animate(solver, save)
 
