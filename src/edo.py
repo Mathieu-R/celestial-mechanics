@@ -1,47 +1,46 @@
 import numpy as np
 from consts import (M_sun as m1, M_jup as m2, M_sat as m3, G)
 
-def two_body_dqdt(q_state, p_state):
-  """
+def hamiltonian(qk, pk, bodies):
+  qk = qk.reshape([-1, 3])
+  pk = pk.reshape([-1, 3])
 
-  """
-  p1, p2 = p_state[0], p_state[1]
-  #print(f"p2/m2: {p2[0] / m2}, {p2[1] / m2}, {p2[2] / m2}")
+  p_sum = 0
+  for i, pi in enumerate(pk):
+    p_sum += (pi ** 2) / 2 * bodies[i].mass
 
-  return np.array([
-    [
-      p1[0] / m1,
-      p1[1] / m1,
-      p1[2] / m1
-    ],
-    [
-      p2[0] / m2,
-      p2[1] / m2,
-      p2[2] / m2
-    ]
-  ])
+  q_sum = 0
+  for i in range(len(bodies)):
+    for j in range(len(bodies)):
+      if i != j:
+        # compute distance between mass i and mass j
+        r_ij = r_dist(qk[i], qk[j])
+        q_sum += ((G * bodies[i].mass * bodies[j].mass) / r_ij)
 
-def two_body_dpdt(q_state, p_state):
-  r1, r2 = q_state[0], q_state[1]
-  #print(r1, r2)
+  # return hamiltonian (= energy)
+  return np.linalg.norm(p_sum + q_sum)
 
-  r12 = np.sqrt((r1[0] - r2[0]) ** 2 + (r1[1] - r2[1]) ** 2 + (r1[2] - r2[2]) ** 2)
-  #print(f"r12: {r12}")
-  #print(f"G: {G}")
-  #print(f"m1: {m1}, m2: {m2}, x1 - x2: {r1[0] - r2[0]}")
-  #print(f"x1: {((G * m1 * m2) / r12 ** 3) * (r1[0] - r2[0])}")
-  return np.array([
-    [
-      ((G * m1 * m2) / r12 ** 3) * (r1[0] - r2[0]),
-      ((G * m1 * m2) / r12 ** 3) * (r1[1] - r2[1]),
-      ((G * m1 * m2) / r12 ** 3) * (r1[2] - r2[2])
-    ],
-    [
-      ((G * m1 * m2) / r12 ** 3) * (r2[0] - r1[0]),
-      ((G * m1 * m2) / r12 ** 3) * (r2[1] - r1[1]),
-      ((G * m1 * m2) / r12 ** 3) * (r2[2] - r1[2])
-    ]
-  ])
+def compute_angular_momentum(qk, pk, bodies):
+  qk = qk.reshape([-1, 3])
+  pk = pk.reshape([-1, 3])
+
+  Lk = np.zeros(3)
+
+  for i in range(len(bodies)):
+    pi, qi = qk[i], pk[i]
+    vi = pi / bodies[i].mass
+
+    rdotv = np.dot(qi, vi)
+    rnorm = np.linalg.norm(qi)
+    vnorm = np.linalg.norm(vi)
+
+    # r \cdot v = ||r|| ||v|| \cos(\theta)
+    theta = np.arccos(rdotv / (rnorm * vnorm))
+    # L = r x mv = m ||r|| ||v|| \sin(\theta)
+    L = bodies[i].mass * rnorm * vnorm * np.sin(theta)
+    Lk[i] = L
+
+  return Lk
 
 def n_body_dqdt(qk, pk, bodies):
   """
@@ -55,20 +54,14 @@ def n_body_dqdt(qk, pk, bodies):
   :return: \dot{q} = dh/dp
   :rtype: ndarray
   """
-  #print(f"dq/dt -- Jupiter: x:{qk[3]}, y:{qk[4]}, z:{qk[5]}")
-  #print(f"dq/dt -- Jupiter: px:{pk[3]}, py:{pk[4]}, pz:{pk[5]}")
-  #print(f"Jupiter Mass: {bodies[1].mass}")
-  dqdt = np.zeros(len(qk))
-  for i in range(len(bodies)):
-    offset = i * 3
-    # px_i / m_i
-    dqdt[offset] = pk[offset] / bodies[i].mass
-    # py_i / m_i
-    dqdt[offset + 1] = pk[offset + 1] / bodies[i].mass
-    # pz_i / m_i
-    dqdt[offset + 2] = pk[offset + 2] / bodies[i].mass
+  # reshape impulsions vector as a list of 3D vectors
+  pk = pk.reshape([-1, 3])
+  dqdt = np.zeros(pk.shape)
+  for i, pi in enumerate(pk):
+    dqdt[i] = pi / bodies[i].mass
 
-  return dqdt
+  # return the unstructured array of the same shape as before
+  return dqdt.flatten()
 
 def n_body_dpdt(qk, pk, bodies):
   """
@@ -82,32 +75,19 @@ def n_body_dpdt(qk, pk, bodies):
   :return: \dot{p} = - dh/dr => \dot{p} = [\dot{px1}, \dot{py2}, \dot{pz1},..., \dot{pxN}, \dot{pyN}, \dot{pzN}]
   :rtype: ndarray
   """
-  #print(f"dp/dt -- Jupiter: x:{qk[3]}, y:{qk[4]}, z:{qk[5]}")
-  #print(f"dq/dt -- Jupiter: px:{pk[3]}, py:{pk[4]}, pz:{pk[5]}")
-  dpdt = np.zeros(len(qk))
+  # reshape positions vector as a list of 3D vectors
+  qk = qk.reshape([-1, 3])
+  dpdt = np.zeros(qk.shape)
   # loop each body
   for i in range(len(bodies)):
-    i_offset = i * 3
     for j in range(len(bodies)):
       if i != j:
-        j_offset = j * 3
+        # compute distance between mass i and mass j
+        r_ij = r_dist(qk[i], qk[j])
+        dpdt[i] -= ((G * bodies[i].mass * bodies[j].mass) / r_ij ** 3) * (qk[i] - qk[j])
 
-        #print(f"i: {i}, i_offset: {i_offset}, j: {j}, j_offset: {j_offset}")
-        #print(f"G: {G}, Mass 1: {bodies[i].mass}, Mass 2: {bodies[j].mass}")
-
-        r_ij = r_dist(ri=[qk[i_offset], qk[i_offset + 1], qk[i_offset + 2]], rj=[qk[j_offset], qk[j_offset + 1], qk[j_offset + 2]])
-
-        r_ij2 = r_dist(ri=qk[i_offset:i_offset+3], rj=qk[j_offset:j_offset+3])
-
-        r_ij3 = np.linalg.norm([qk[i_offset:i_offset+3], qk[j_offset:j_offset+3]])
-
-        dpdt[i_offset] -= ((G * bodies[i].mass * bodies[j].mass) / r_ij ** 3) * (qk[i_offset] - qk[j_offset])
-
-        dpdt[i_offset + 1] -= ((G * bodies[i].mass * bodies[j].mass) / r_ij ** 3) * (qk[i_offset + 1] - qk[j_offset + 1])
-
-        dpdt[i_offset + 2] -= ((G * bodies[i].mass * bodies[j].mass) / r_ij ** 3) * (qk[i_offset + 2] - qk[j_offset + 2])
-
-  return dpdt
+  # return unstructured array
+  return dpdt.flatten()
 
 def r_dist(ri, rj):
   """

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3.9
 import click
+from click.decorators import option
 import matplotlib.pyplot as plt
 import pyfiglet # ascii art
 
-from src.two_body import TwoBody
 from src.nbody import NBodySimulation
 from src.body import Body
 
@@ -41,29 +41,39 @@ bodies = {
 )
 @click.option(
   "--solver", "-s",
-  type=click.Choice(["rk2", "rk4", "euler-symplectic", "stormer-verlet"]),
+  type=click.Choice(["heun", "euler-symplectic", "stormer-verlet"]),
   default="stormer-verlet",
   show_default=True,
   help="Type of numerical scheme. Euler symplectic and Stormer-Verlet are symplectic schemes. Only needed for animation. For static plot, all the scheme are used at once to compute 4 subplots."
 )
-def main(body, plot, solver):
+@click.option(
+  "--save", "-sa",
+  is_flag=True,
+  help="Save plot or animation"
+)
+def main(body, plot, solver, save):
   # clear terminal (even history)
   print('\033c', end=None)
   # ascii art - for fun.
   print(pyfiglet.print_figlet("CELESTIAL"))
 
+  options = {"save": save}
+
   nbody = NBodySimulation(
     bodies=[bodies[b] for b in body],
     t0=t0,
     tN=tN,
-    dt=dt
+    dt=dt,
+    options=options
   )
 
   if plot == "static":
     nbody.simulate()
     nbody.plot3D()
+    nbody.plot_energy()
+    nbody.plot_angular_momentum()
   elif plot == "animated":
-    nbody.animate(solver)
+    nbody.animate(solver, save)
 
 if __name__ == "__main__":
   main()
