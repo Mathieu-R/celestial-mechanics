@@ -12,6 +12,7 @@ from utils import (set_size, set_size_square_plot)
 
 class NBodySimulation():
   def __init__(self, bodies, t0, tN, dt, options):
+    self.options = options
     self.bodies = bodies
     self.t0 = t0
     self.tN = tN
@@ -55,7 +56,7 @@ class NBodySimulation():
       }
     }
 
-    if options["save"]:
+    if self.options["save"]:
       self.figure_options = set_size(width="full-size", subplots=(1,3))
     else:
       self.figure_options = 8,8
@@ -71,7 +72,7 @@ class NBodySimulation():
     # energy mesh -- computed from the hamiltonian
     energy = np.zeros(self.nt)
     # angular momentum mesh
-    angular_momentum = np.zeros(self.nt)
+    angular_momentum = np.zeros((self.nt, 3))
 
     # set initial conditions
     q[0] = np.concatenate(np.array([body.initial_positions for body in bodies]))
@@ -159,8 +160,6 @@ class NBodySimulation():
       ax.set_ylim([-max_range,max_range])
       ax.set_zlim([-max_range,max_range])
 
-      #ax.legend()
-
     plt.show()
 
   def plot_energy(self):
@@ -188,7 +187,8 @@ class NBodySimulation():
       angular_momentum = result["angular_momentum"]
 
       for (ind, body) in enumerate(self.bodies):
-        ax.plot(self.time_mesh / 365.25, angular_momentum[:,ind], label=body.name)
+        print(angular_momentum)
+        ax.plot(self.time_mesh / 365.25, angular_momentum[:,ind], c=body.color, label=body.name)
 
       ax.set_xlabel("Temps [années]")
       ax.set_ylabel("Moment angulaire")

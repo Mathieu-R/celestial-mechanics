@@ -24,7 +24,7 @@ def compute_angular_momentum(qk, pk, bodies):
   qk = qk.reshape([-1, 3])
   pk = pk.reshape([-1, 3])
 
-  Lk = np.zeros(qk.shape)
+  Lk = np.zeros(3)
 
   for i in range(len(bodies)):
     pi, qi = qk[i], pk[i]
@@ -40,6 +40,7 @@ def compute_angular_momentum(qk, pk, bodies):
     L = bodies[i].mass * rnorm * vnorm * np.sin(theta)
     Lk[i] = L
 
+  return Lk
 
 def n_body_dqdt(qk, pk, bodies):
   """
