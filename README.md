@@ -17,7 +17,7 @@ $ python3 -m pip install --upgrade pip
 
 Install required packages
 ```bash
-$ python3 -m pip install -r=requirements.txt
+$ python3 -m pip install -r requirements.txt
 ```
 
 ### Launch simulations    
@@ -36,14 +36,14 @@ Options:
   -p, --plot [static|animated]    (S)tatic or (A)nimated plot  [default:
                                   static]
 
-  -s, --solver [rk2|rk4|euler-symplectic|stormer-verlet]
+  -s, --solver [heun|euler-symplectic|stormer-verlet]
                                   Type of numerical scheme. Euler symplectic
                                   and Stormer-Verlet are symplectic schemes.
-                                  Only needed for animation. For static plot, 
-                                  all the scheme are used at once to compute 
-                                  4 subplots.
-                                  [default: stormer-verlet]
+                                  Only needed for animation. For static plot,
+                                  all the scheme are used at once to compute 4
+                                  subplots.  [default: stormer-verlet]
 
+  -sa, --save                     Save plot or animation
   --help                          Show this message and exit.
 ```
 
