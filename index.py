@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.9
 import click
 from click.decorators import option
+from click.types import Choice
 import matplotlib.pyplot as plt
 import pyfiglet # ascii art
 
@@ -13,9 +14,9 @@ from consts import (t0, tN, dt)
 plt.style.use("science")
 
 # prepare bodies
-Sun = Body(name="Sun", initial_positions=sun_position0, initial_impulsions=sun_impulsion0, mass=M_sun, color='y', markersize=9)
-Jupiter = Body(name="Jupiter", initial_positions=jupiter_position0, initial_impulsions=jupiter_impulsion0, mass=M_jup, color='r', markersize=8)
-Saturn = Body(name="Saturn", initial_positions=saturn_position0, initial_impulsions=saturn_impulsion0, mass=M_sat, color='b', markersize=7)
+Sun = Body(name="Sun", initial_positions=sun_position0, initial_impulsions=sun_impulsion0, mass=M_sun, color='gold', marker="o", markersize=9)
+Jupiter = Body(name="Jupiter", initial_positions=jupiter_position0, initial_impulsions=jupiter_impulsion0, mass=M_jup, color='r', marker=",", markersize=8)
+Saturn = Body(name="Saturn", initial_positions=saturn_position0, initial_impulsions=saturn_impulsion0, mass=M_sat, color='b', marker=",", markersize=7)
 
 bodies = {
   "Sun": Sun,
@@ -33,6 +34,13 @@ bodies = {
   help="Celestial body to simulate. You can add multiple bodies typing multiple times -cb"
 )
 @click.option(
+  "--dimensions", "-d",
+  type=int,
+  default=2,
+  show_default=True,
+  help="Only for static plot. Dimensions of the orbital evolution static plot (2D / 3D)"
+)
+@click.option(
   "--plot", "-p",
   type=click.Choice(["static", "animated"], case_sensitive=False),
   default="static",
@@ -44,14 +52,14 @@ bodies = {
   type=click.Choice(["heun", "euler-symplectic", "stormer-verlet"]),
   default="stormer-verlet",
   show_default=True,
-  help="Type of numerical scheme. Euler symplectic and Stormer-Verlet are symplectic schemes. Only needed for animation. For static plot, all the scheme are used at once to compute 4 subplots."
+  help="Only needed for animation. Type of numerical scheme. Euler symplectic and Stormer-Verlet are symplectic schemes. For static plot, all the scheme are used at once to compute 4 subplots."
 )
 @click.option(
   "--save", "-sa",
   is_flag=True,
   help="Save plot or animation"
 )
-def main(body, plot, solver, save):
+def main(body, dimensions, plot, solver, save):
   # clear terminal (even history)
   print('\033c', end=None)
   # ascii art - for fun.
@@ -69,7 +77,12 @@ def main(body, plot, solver, save):
 
   if plot == "static":
     nbody.simulate()
-    nbody.plot3D()
+
+    if dimensions == 2:
+      nbody.plot2D()
+    elif dimensions == 3:
+      nbody.plot3D()
+
     nbody.plot_energy()
     nbody.plot_angular_momentum()
   elif plot == "animated":

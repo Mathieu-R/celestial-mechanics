@@ -1,12 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.gridspec as gridspec
 
 from mpl_toolkits.mplot3d import Axes3D
 
 from .edo import (hamiltonian, compute_angular_momentum, n_body_dqdt, n_body_dpdt)
 from .solvers import (heun, euler_symp, stormer_verlet)
-from consts import DATA_SUB_INTERVAL_LENGTH
+from consts import (au_to_meter, day_to_second)
 
 from utils import (set_size, set_size_square_plot)
 
@@ -33,25 +34,28 @@ class NBodySimulation():
     self.legends = ["Heun (RK2)", "Euler Symplectique", "Stormer-Verlet"]
 
     self.solvers = [
-      {"call": heun, "name": "Heun (RK2)", "bodies": self.bodies},
-      {"call": euler_symp, "name": "Euler Symplectique", "bodies": self.bodies},
-      {"call": stormer_verlet, "name": "Stormer Verlet", "bodies": self.bodies}
+      {"call": heun, "name": "Heun (RK2)", "color": "teal", "bodies": self.bodies},
+      {"call": euler_symp, "name": "Euler Symplectique", "color": "darkorange", "bodies": self.bodies},
+      {"call": stormer_verlet, "name": "Stormer Verlet", "color": "crimson", "bodies": self.bodies}
     ]
 
     self.solvers2 = {
       "rk2": {
         "call": heun,
         "name": "Heun (RK2)",
+        "color": "teal",
         "bodies": self.bodies
       },
       "euler-sympectic": {
         "call": euler_symp,
         "name": "Euler Symplectique",
+        "color": "darkorange",
         "bodies": self.bodies
       },
       "stormer-verlet": {
         "call": stormer_verlet,
         "name": "Stormer Verlet",
+        "color": "crimson",
         "bodies": self.bodies
       }
     }
@@ -90,54 +94,43 @@ class NBodySimulation():
     self.results = []
     for solver in self.solvers:
       q, p, energy, angular_momentum = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
-      self.results.append({"solver": solver["name"], "q": q, "p": p, "energy": energy, "angular_momentum": angular_momentum})
+      self.results.append({"solver": solver["name"], "color": solver["color"], "q": q, "p": p, "energy": energy, "angular_momentum": angular_momentum})
 
   def plot2D(self):
-    self.fig, ax = plt.subplots(1, 1, figsize=(8, 8))
+    self.fig = plt.figure(figsize=(set_size_square_plot(width="full-size", subplots=(2,2))))
+    # loop for each result (corresponding to a specific solving method)
+    for (index, result) in enumerate(self.results):
+      # create a 2D plot
+      ax = self.fig.add_subplot(2, 2, index + 1)
+      # set plot parameters
+      ax.set_title(result["solver"])
 
-    # set plot parameters
-    result = self.results[0]
-    ax.set_title(result["solver"])
-    ax.set_xlabel("x [a.u]")
-    ax.set_ylabel("y [a.u]")
+      # plotting each body
+      for (ind, body) in enumerate(self.bodies):
+        x_index = (ind * 3)
+        y_index = (ind * 3) + 1
 
-    max_range = 0
+        x, y = result["q"][:,x_index], result["q"][:,y_index]
+        ax.plot(x, y, c=body.color, label=body.name, marker=body.marker)
 
-    # plotting each body
-    for (ind, body) in enumerate(self.bodies):
-      x_index = (ind * 3)
-      y_index = (ind * 3) + 1
+      # set labels
+      ax.set_xlabel("x (AU)")
+      ax.set_ylabel("y (AU)")
 
-      x, y= result["q"][:,x_index], result["q"][:,y_index]
-
-      max_dim = max(max(x), max(y))
-      #print(max(x), max(y), max(z))
-      if max_dim > max_range:
-        max_range = max_dim
-
-      # plot Sun at the center (but should move a little bit over a long time ?)
-      if body.name == "Sun":
-        ax.plot(0, 0, "o", color="orange", markersize=3)
-
-      ax.plot(x, y, c=body.color, label=body.name)
-
-    # limiting plot
-    ax.set_xlim([-max_range,max_range])
-    ax.set_ylim([-max_range,max_range])
-
-    #ax.legend()
+    if self.options["save"]:
+      self.fig.savefig(f"figures/orbital-plot2d.pdf")
 
     plt.show()
 
   def plot3D(self):
-    self.fig = plt.figure(figsize=(self.figure_options))
-
+    self.fig = plt.figure(figsize=(set_size_square_plot(width="column-size", subplots=(1,1))))
+    # create subplot grid
     # loop for each result (corresponding to a specific solving method)
     for (index, result) in enumerate(self.results):
       # create a 3D plot
-      ax = self.fig.add_subplot(2, 2, index + 1, projection="3d")
+      ax = self.fig.add_subplot(1, 1, 1, projection="3d")
       # set plot parameters
-      ax.set_title(result["solver"])
+      #ax.set_title(result["solver"])
 
       max_range = 0
 
@@ -160,45 +153,55 @@ class NBodySimulation():
       ax.set_ylim([-max_range,max_range])
       ax.set_zlim([-max_range,max_range])
 
-      ax.set_xlabel("x [a.u]")
-      ax.set_ylabel("y [a.u]")
-      ax.set_zlabel("z [a.u]")
+      # change tick font
+      for tick in ax.get_xticklabels(which="both"):
+        tick.set_fontname("Roboto Condensed")
 
-    if self.options["save"]:
-      self.fig.savefig('orbital-plot3D.pdf')
+      # set labels
+      ax.set_xlabel("x (AU)")
+      ax.set_ylabel("y (AU)")
+      ax.set_zlabel("z (AU)")
+
+      ax.set_xticklabels([])
+      ax.set_yticklabels([])
+      ax.set_aspect('auto')
+
+      if self.options["save"]:
+        self.fig.savefig(f"figures/orbital-plot3d--{result['solver']}.pdf")
 
     plt.show()
 
   def plot_energy(self):
-    self.fig = plt.figure(figsize=(8,8))
+    self.fig = plt.figure(figsize=(set_size(width="full-size")))
     ax = self.fig.add_subplot(1, 1, 1)
 
     ax.set_title(f"Energie")
 
     for (index, result) in enumerate(self.results):
       solver_name = result["solver"]
-      energy = result["energy"]
-      ax.plot(self.time_mesh / 365.25, energy)
+      # kg * au^2 / day^2 => kg * m^2 / s^2
+      energy = result["energy"] * ((au_to_meter ** 2) / (day_to_second ** 2))
+      ax.plot(self.time_mesh / 365.25, energy, c=result["color"])
       ax.set_xlabel("Temps [années]")
       ax.set_ylabel("Energie totale [$J$]")
 
 
     if self.options["save"]:
-      self.fig.savefig('orbital-energy.pdf')
+      self.fig.savefig('figures/orbital-energy.pdf')
 
     plt.show()
 
   def plot_angular_momentum(self):
-    self.fig = plt.figure(figsize=(8,8))
+    self.fig = plt.figure(figsize=(set_size(width="full-size", subplots=(3,1))))
 
     for (index, result) in enumerate(self.results):
       ax = self.fig.add_subplot(3, 1, index + 1)
 
       solver_name = result["solver"]
-      angular_momentum = result["angular_momentum"]
+      # kg * au^2 / day => kg * m^2 / s
+      angular_momentum = result["angular_momentum"] * ((au_to_meter ** 2) / (day_to_second))
 
       for (ind, body) in enumerate(self.bodies):
-        print(angular_momentum)
         ax.plot(self.time_mesh / 365.25, angular_momentum[:,ind], c=body.color, label=body.name)
 
       ax.set_xlabel("Temps [années]")
@@ -206,7 +209,7 @@ class NBodySimulation():
       ax.set_title(f"Moment angulaire: {solver_name}")
 
     if self.options["save"]:
-      self.fig.savefig('orbital-angular-momentum.pdf')
+      self.fig.savefig('figures/orbital-angular-momentum.pdf')
 
     plt.show()
 

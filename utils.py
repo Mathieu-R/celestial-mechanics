@@ -23,7 +23,7 @@ def set_size(width, fraction=1, subplots=(1,1)):
   if width == 'full-size':
     width_pt = 441.01775
   elif width == 'column-size':
-    width_pt = 236.84843
+    width_pt = 220
   else:
     width_pt = width
 
