@@ -291,7 +291,7 @@ class NBodySimulation():
 
     # solve for that specific solver
     solver = self.solvers2[solver_name]
-    self.q, self.p, energy = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
+    self.q, self.p, energy, angular_momentum = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
 
     max_range = self.limit_plot(self.q)
 
