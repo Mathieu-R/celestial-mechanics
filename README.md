@@ -10,7 +10,8 @@ $ git clone https://github.com/Mathieu-R/celestial-mechanics
 Create virtual environment
 ```bash
 $ python3 -m venv <env-name>
-$ source env/bin/activate
+$ source env/bin/activate # OSX / Unix
+$ env\\Scripts\\activate.bat # Windows
 $ python3 -m pip install --upgrade pip
 ```
 
@@ -48,5 +49,5 @@ Options:
 
 For example: 
 ```bash
-$ python3 index.py -cb Sun -cb Jupiter -cb Mars -p animated -s stormer-verlet
+$ python3 index.py -cb Sun -cb Jupiter -cb Saturn -p animated -s stormer-verlet
 ```
