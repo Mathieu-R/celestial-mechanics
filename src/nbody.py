@@ -103,7 +103,8 @@ class NBodySimulation():
       # create a 2D plot
       ax = self.fig.add_subplot(2, 2, index + 1)
       # set plot parameters
-      ax.set_title(result["solver"])
+      ax.set_title(result["solver"], fontsize=8)
+      #ax.text(0.5, 1.05, f"({index + 1})", ha="center", transform=ax.transAxes, size=8)
 
       # plotting each body
       for (ind, body) in enumerate(self.bodies):
@@ -117,8 +118,10 @@ class NBodySimulation():
       ax.set_xlabel("x (AU)")
       ax.set_ylabel("y (AU)")
 
+    plt.tight_layout()
+
     if self.options["save"]:
-      self.fig.savefig(f"figures/orbital-plot2d.pdf")
+      self.fig.savefig("figures/orbital-plot2d.png")
 
     plt.show()
 
@@ -175,7 +178,7 @@ class NBodySimulation():
     self.fig = plt.figure(figsize=(set_size(width="full-size")))
     ax = self.fig.add_subplot(1, 1, 1)
 
-    ax.set_title(f"Energie")
+    ax.set_title(f"Energie", fontsize=8)
 
     for (index, result) in enumerate(self.results):
       solver_name = result["solver"]
@@ -192,10 +195,10 @@ class NBodySimulation():
     plt.show()
 
   def plot_angular_momentum(self):
-    self.fig = plt.figure(figsize=(set_size(width="full-size", subplots=(3,1))))
+    self.fig = plt.figure(figsize=(set_size(width="full-size", subplots=(2,2))))
 
     for (index, result) in enumerate(self.results):
-      ax = self.fig.add_subplot(3, 1, index + 1)
+      ax = self.fig.add_subplot(2, 2, index + 1)
 
       solver_name = result["solver"]
       # kg * au^2 / day => kg * m^2 / s
@@ -204,9 +207,15 @@ class NBodySimulation():
       for (ind, body) in enumerate(self.bodies):
         ax.plot(self.time_mesh / 365.25, angular_momentum[:,ind], c=body.color, label=body.name)
 
-      ax.set_xlabel("Temps [années]")
-      ax.set_ylabel("Moment angulaire [$kg.m^2.s^{-1}$]")
-      ax.set_title(f"Moment angulaire: {solver_name}")
+      ax.tick_params(axis='x', labelsize=10)
+      ax.tick_params(axis='y', labelsize=10)
+
+      ax.set_xlabel("Temps [années]", fontsize=10)
+      ax.set_ylabel("L [$kg.m^2.s^{-1}$]", fontsize=10)
+      #ax.text(0.5, 1.05, f"({index + 1})", ha="center", transform=ax.transAxes, size=8)
+      ax.set_title(f"Moment angulaire: {solver_name}", fontsize=8)
+
+    plt.tight_layout()
 
     if self.options["save"]:
       self.fig.savefig('figures/orbital-angular-momentum.pdf')
