@@ -135,7 +135,7 @@ class NBodySimulation():
     # loop for each result (corresponding to a specific solving method)
     for (index, result) in enumerate(self.results):
       # create a 3D plot
-      ax = self.fig.add_subplot(1, 3, index + 1, projection="3d")
+      ax = self.fig.add_subplot(2, 2, index + 1, projection="3d")
       # set plot parameters
       ax.set_title(result["solver"])
 
@@ -160,20 +160,31 @@ class NBodySimulation():
       ax.set_ylim([-max_range,max_range])
       ax.set_zlim([-max_range,max_range])
 
+      ax.set_xlabel("x [a.u]")
+      ax.set_ylabel("y [a.u]")
+      ax.set_zlabel("z [a.u]")
+
+    if self.options["save"]:
+      self.fig.savefig('orbital-plot3D.pdf')
+
     plt.show()
 
   def plot_energy(self):
     self.fig = plt.figure(figsize=(8,8))
+    ax = self.fig.add_subplot(1, 1, 1)
+
+    ax.set_title(f"Energie")
 
     for (index, result) in enumerate(self.results):
-      ax = self.fig.add_subplot(3, 1, index + 1)
-
       solver_name = result["solver"]
       energy = result["energy"]
       ax.plot(self.time_mesh / 365.25, energy)
       ax.set_xlabel("Temps [années]")
-      ax.set_ylabel("Energie totale [J]")
-      ax.set_title(f"Energie: {solver_name}")
+      ax.set_ylabel("Energie totale [$J$]")
+
+
+    if self.options["save"]:
+      self.fig.savefig('orbital-energy.pdf')
 
     plt.show()
 
@@ -191,8 +202,11 @@ class NBodySimulation():
         ax.plot(self.time_mesh / 365.25, angular_momentum[:,ind], c=body.color, label=body.name)
 
       ax.set_xlabel("Temps [années]")
-      ax.set_ylabel("Moment angulaire")
+      ax.set_ylabel("Moment angulaire [$kg.m^2.s^{-1}$]")
       ax.set_title(f"Moment angulaire: {solver_name}")
+
+    if self.options["save"]:
+      self.fig.savefig('orbital-angular-momentum.pdf')
 
     plt.show()
 
