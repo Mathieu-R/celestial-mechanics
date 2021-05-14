@@ -8,26 +8,28 @@ import pyfiglet # ascii art
 from src.nbody import NBodySimulation
 from src.body import Body
 
-from consts import (sun_position0, sun_impulsion0, jupiter_position0, jupiter_impulsion0, saturn_position0, saturn_impulsion0, M_sun, M_jup, M_sat)
+from consts import (sun_position0, sun_impulsion0, jupiter_position0, earth_position0, jupiter_impulsion0, saturn_position0, saturn_impulsion0, earth_impulsion0, M_sun, M_jup, M_sat, M_earth)
 from consts import (t0, tN, dt)
 
 plt.style.use("science")
 
 # prepare bodies
-Sun = Body(name="Sun", initial_positions=sun_position0, initial_impulsions=sun_impulsion0, mass=M_sun, color='gold', marker="o", markersize=9)
-Jupiter = Body(name="Jupiter", initial_positions=jupiter_position0, initial_impulsions=jupiter_impulsion0, mass=M_jup, color='r', marker=",", markersize=8)
-Saturn = Body(name="Saturn", initial_positions=saturn_position0, initial_impulsions=saturn_impulsion0, mass=M_sat, color='b', marker=",", markersize=7)
+Sun = Body(name="Sun", initial_positions=sun_position0, initial_impulsions=sun_impulsion0, mass=M_sun, color='gold', marker="o", marker_anim="o", markersize=9)
+Jupiter = Body(name="Jupiter", initial_positions=jupiter_position0, initial_impulsions=jupiter_impulsion0, mass=M_jup, color='r', marker=",", marker_anim="o-", markersize=8)
+Saturn = Body(name="Saturn", initial_positions=saturn_position0, initial_impulsions=saturn_impulsion0, mass=M_sat, color='sandybrown', marker=",", marker_anim="o-", markersize=7)
+Earth = Body(name="Earth", initial_positions=earth_position0, initial_impulsions=earth_impulsion0, mass=M_earth, color='dodgerblue', marker=",", marker_anim="o-", markersize=7)
 
 bodies = {
   "Sun": Sun,
   "Jupiter": Jupiter,
-  "Saturn": Saturn
+  "Saturn": Saturn,
+  "Earth": Earth
 }
 
 @click.command()
 @click.option(
   "--body", "-cb",
-  type=click.Choice(["Sun", "Jupiter", "Saturn"], case_sensitive=False),
+  type=click.Choice(["Sun", "Jupiter", "Saturn", "Earth"], case_sensitive=False),
   multiple=True,
   default=["Sun", "Jupiter"],
   show_default=True,
@@ -86,7 +88,7 @@ def main(body, dimensions, plot, solver, save):
     nbody.plot_energy()
     nbody.plot_angular_momentum()
   elif plot == "animated":
-    nbody.animate(solver, save)
+    nbody.animate(solver)
 
 if __name__ == "__main__":
   main()

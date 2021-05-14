@@ -7,6 +7,7 @@ M_sun = 1.98841e30
 M_sun = 1.00000597682 # M_Sun normalized to 1
 M_jup = 0.000954786104043 # M_Jup / M_Sun
 M_sat = 0.000285583733151 # M_Sat / M_Sun
+M_earth = 3.003e-6 # M_earth / M_Sun
 
 # 1 m = 6.6845e-12 au
 meter_to_au = 6.6845871222684e-12
@@ -38,6 +39,9 @@ jupiter_impulsion0 = [0.0054161298800 * M_jup, 0.0051281500076 * M_jup, 0.002066
 
 saturn_position0 = [5.8139930169916, -7.3998049325634, -3.3068297277913]
 saturn_impulsion0 = [0.0042287765130 * M_sat, 0.0030656447687 * M_sat, 0.0010842701680 * M_sat]
+
+earth_position0 = [ -0.6328481424305, -0.7224546684653, -0.3131787271070]
+earth_impulsion0 = [0.0131352571260 * M_earth, -0.0099512546159 * M_earth, -0.0043145281044 * M_earth]
 
 # time in days
 t0 = 0

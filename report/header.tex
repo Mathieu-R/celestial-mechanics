@@ -4,18 +4,21 @@
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel} % traduction
 \usepackage[usenames,svgnames,dvipsnames]{xcolor}
-%\usepackage{bookmark} 
+%\usepackage{bookmark}
 %\usepackage{booktabs} % beautiful tables
 %\usepackage[thicklines]{cancel} % cancel terms in equation
 %\usepackage{color} % colors in box (theorems,...)
 %\usepackage{enumerate}
+\usepackage{float}
 \usepackage{framed} % box around text
 \usepackage{fancyhdr} % header
 %\usepackage{fancyvrb}
+\usepackage{mathrsfs}
 \usepackage{mathtools}
 \usepackage[parfill]{parskip} % avoid bad alignment in paragraphs
 \usepackage{pgfplots} % plot in tikz
-\usepackage[arrowdel]{physics} % physics helpers
+\usepackage{braket} % braket and sets
+\usepackage{derivative} % derivatives
 %\usepackage{setspace}
 \usepackage{siunitx}
 \usepackage{silence} % silence useless warnings
@@ -46,8 +49,8 @@
 	paper=a4paper,
 	inner=2.0cm,
 	outer=3.0cm,
-	bindingoffset=.5cm, 
-	top=3.5cm, 
+	bindingoffset=.5cm,
+	top=3.5cm,
 	bottom=3.5cm
 }
 
@@ -166,7 +169,7 @@
 \newenvironment{conditions}
   {\par\vspace{\abovedisplayskip}\noindent\begin{tabular}{>{$}l<{$} @{${}={}$} l}}
 	{\end{tabular}\par\vspace{\belowdisplayskip}}
-	
+
 \newenvironment{conditions*}
   {\par\vspace{\abovedisplayskip}\noindent
    \tabularx{\columnwidth}{>{$}l<{$} @{${}={}$} >{\raggedright\arraybackslash}X}}
@@ -199,9 +202,11 @@
 \newcommand{\dS}{\cdot d\vb{S}}
 \newcommand{\lag}{\mathcal{L}}
 \newcommand{\ham}{\mathcal{H}}
-\newcommand{\vd}[1]{\dot{\vb{#1}}}
-\newcommand{\vdd}[1]{\ddot{\vb{#1}}}
 \newcommand{\Mod}[1]{\ \mathrm{mod}\ #1}
+
+\renewcommand{\vec}[1]{\mathbf{#1}} % bold vectors
+\newcommand{\vd}[1]{\dot{\vec{#1}}}
+\newcommand{\vdd}[1]{\ddot{\vec{#1}}}
 
 % norm
 \newcommand{\bignorm}[1]{\left\lVert#1\right\rVert}
@@ -220,7 +225,7 @@
 % cancel terms with color
 % \newcommand{\ccancel}[2]{\renewcommand{\CancelColor}{\color{#2}}\bcancel{#1}}
 
-% small parallel 
+% small parallel
 \makeatletter
 \newcommand{\newparallel}{\mathrel{\mathpalette\new@parallel\relax}}
 \newcommand{\new@parallel}[2]{%

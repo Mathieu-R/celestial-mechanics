@@ -40,13 +40,13 @@ class NBodySimulation():
     ]
 
     self.solvers2 = {
-      "rk2": {
+      "heun": {
         "call": heun,
         "name": "Heun (RK2)",
         "color": "teal",
         "bodies": self.bodies
       },
-      "euler-sympectic": {
+      "euler-symplectic": {
         "call": euler_symp,
         "name": "Euler Symplectique",
         "color": "darkorange",
@@ -121,7 +121,7 @@ class NBodySimulation():
     plt.tight_layout()
 
     if self.options["save"]:
-      self.fig.savefig("figures/orbital-plot2d.png")
+      self.fig.savefig("report/figures/orbital-plot2d.png", dpi=600)
 
     plt.show()
 
@@ -190,7 +190,7 @@ class NBodySimulation():
 
 
     if self.options["save"]:
-      self.fig.savefig('figures/orbital-energy.pdf')
+      self.fig.savefig('report/figures/orbital-energy.pdf')
 
     plt.show()
 
@@ -207,18 +207,18 @@ class NBodySimulation():
       for (ind, body) in enumerate(self.bodies):
         ax.plot(self.time_mesh / 365.25, angular_momentum[:,ind], c=body.color, label=body.name)
 
-      ax.tick_params(axis='x', labelsize=10)
-      ax.tick_params(axis='y', labelsize=10)
+      ax.tick_params(axis='both', which='major', labelsize=8)
+      ax.tick_params(axis='both', which='minor', labelsize=6)
 
-      ax.set_xlabel("Temps [années]", fontsize=10)
-      ax.set_ylabel("L [$kg.m^2.s^{-1}$]", fontsize=10)
+      ax.set_xlabel("Temps [années]", fontsize=6)
+      ax.set_ylabel("L [$kg.m^2.s^{-1}$]", fontsize=6)
       #ax.text(0.5, 1.05, f"({index + 1})", ha="center", transform=ax.transAxes, size=8)
-      ax.set_title(f"Moment angulaire: {solver_name}", fontsize=8)
+      ax.set_title(f"{solver_name}", fontsize=8)
 
     plt.tight_layout()
 
     if self.options["save"]:
-      self.fig.savefig('figures/orbital-angular-momentum.pdf')
+      self.fig.savefig('report/figures/orbital-angular-momentum.pdf')
 
     plt.show()
 
@@ -228,25 +228,35 @@ class NBodySimulation():
       y_index = (i * 3) + 1
       z_index = (i * 3) + 2
 
-      x = self.q[:index,x_index]
-      y = self.q[:index,y_index]
-      z = self.q[:index,z_index]
+      # show a portion of the path
+      trail = 40
+      beginning = max(1, index - trail)
+
+      x = self.q[index:beginning:-1,x_index]
+      y = self.q[index:beginning:-1,y_index]
+      z = self.q[index:beginning:-1,z_index]
+
+      # update elapsed time
+      #print(f"Temps écoulé: {round(self.time_mesh[index] / 365.25, 1)} ans")
+      self.elapsed_text.set_text(f"Temps écoulé: {round(self.time_mesh[index] / 365.25, 1)} ans")
 
       self.lines[i].set_data_3d(x, y, z)
 
       # point is the "head of the line"
-      self.points[i].set_data_3d(x[-1:], y[-1:], z[-1:])
+      #self.points[i].set_data_3d(x[-1:], y[-1:], z[-1:])
 
-    return self.lines + self.points
+    return tuple(self.lines) + (self.elapsed_text,) #+ self.points
 
   def init(self):
-    for line, point in zip(self.lines, self.points):
+    for line in self.lines: #line, point in zip(self.lines, self.points):
       line.set_data_3d([], [], [])
-      point.set_data_3d([], [], [])
+      #point.set_data_3d([], [], [])
 
-    return self.lines + self.points
+    self.elapsed_text.set_text("")
 
-  def animate(self, solver_name, save):
+    return tuple(self.lines) + (self.elapsed_text,) #+ self.points
+
+  def animate(self, solver_name):
     self.fig = plt.figure(figsize=(8, 8))
     self.axes = self.fig.add_subplot(projection="3d")
 
@@ -255,16 +265,16 @@ class NBodySimulation():
     self.axes.grid(False)
     self.axes.set_xticklabels([])
     self.axes.set_yticklabels([])
-    self.axes.set_xlabel("x [a.u]")
-    self.axes.set_ylabel("y [a.u]")
-    self.axes.set_zlabel("z [a.u]")
-
-    #self.time_text = self.axes.text()
+    self.axes.set_zticklabels([])
+    self.axes.set_xlabel("x (AU)")
+    self.axes.set_ylabel("y (AU)")
+    self.axes.set_zlabel("z (AU)")
 
     self.lines = sum([
       self.axes.plot(
         [], [], [],
-        '-',
+        body.marker_anim,
+        #'-',
         color=body.color,
         linewidth=2,
         markevery=10000,
@@ -274,18 +284,18 @@ class NBodySimulation():
       ) for body in self.bodies
     ], [])
 
-    self.points = sum([
-      self.axes.plot(
-        [], [], [],
-        'o',
-        color=body.color,
-        linewidth=2,
-        markevery=10000,
-        markersize=body.markersize,
-        markerfacecolor=body.color,
-        label=body.name
-      ) for body in self.bodies
-    ], [])
+    # self.points = sum([
+    #   self.axes.plot(
+    #     [], [], [],
+    #     'o',
+    #     color=body.color,
+    #     linewidth=2,
+    #     markevery=10000,
+    #     markersize=body.markersize,
+    #     markerfacecolor=body.color,
+    #     label=body.name
+    #   ) for body in self.bodies
+    # ], [])
 
     self.axes.legend()
 
@@ -300,6 +310,15 @@ class NBodySimulation():
     self.axes.set_ylim([-max_range,max_range])
     self.axes.set_zlim([-max_range,max_range])
 
+    # text, annotations,...
+    self.elapsed_text = self.axes.text2D(
+      x=0.24,
+      y=1.05,
+      s='',
+      transform = self.axes.transAxes,
+      va='center'
+    )
+
     ani = animation.FuncAnimation(
       fig=self.fig,
       func=self.update,
@@ -308,9 +327,6 @@ class NBodySimulation():
       interval=5,
       blit=True
     )
-
-    if save:
-      ani.save(filename=f"../n-body-{solver_name}.gif", writer="imagemagick", fps=60)
 
     plt.show()
 
