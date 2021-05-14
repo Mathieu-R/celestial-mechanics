@@ -28,20 +28,28 @@ $ python3 index.py --help
 Usage: index.py [OPTIONS]
 
 Options:
-  -cb, --body [Sun|Jupiter|Saturn]
+  -cb, --body [Sun|Jupiter|Saturn|Earth]
                                   Celestial body to simulate. You can add
-                                  multiple bodies typing multiple times -cb
+                                  multiple bodies typing multiples -cb
                                   [default: Sun, Jupiter]
+
+  -d, --dimensions INTEGER        Only for static plot. Dimensions of the
+                                  orbital evolution static plot (2D / 3D)
+                                  [default: 2]
 
   -p, --plot [static|animated]    (S)tatic or (A)nimated plot  [default:
                                   static]
 
   -s, --solver [heun|euler-symplectic|stormer-verlet]
-                                  Type of numerical scheme. Euler symplectic
-                                  and Stormer-Verlet are symplectic schemes.
-                                  Only needed for animation. For static plot,
-                                  all the scheme are used at once to compute 4
+                                  Only needed for animation. Type of numerical
+                                  scheme. Euler symplectic and Stormer-Verlet
+                                  are symplectic schemes. For static plot, all
+                                  the scheme are used at once to compute 4
                                   subplots.  [default: stormer-verlet]
+
+  -t, --time INTEGER              Time of integration (in years). You can add
+                                  multiples times typing multiples -t
+                                  [default: 5000]
 
   -sa, --save                     Save plot or animation
   --help                          Show this message and exit.
@@ -51,3 +59,7 @@ For example:
 ```bash
 $ python3 index.py -cb Sun -cb Jupiter -cb Saturn -p animated -s stormer-verlet
 ```
+
+### Orbital evolution of the Sun, Jupiter and Saturn for 5000 years
+
+![orbital plot 2d](report/figures/5000_years/orbital-plot2d.png)

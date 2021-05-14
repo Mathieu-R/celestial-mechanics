@@ -45,7 +45,7 @@ earth_impulsion0 = [0.0131352571260 * M_earth, -0.0099512546159 * M_earth, -0.00
 
 # time in days
 t0 = 0
-tN = 5000 * 365.25 # integration over 5000 years
+tN = 10 * 365.25 # integration over 5000 years
 dt = 30 # time_step : 30 days
 
 # refresh times for animation

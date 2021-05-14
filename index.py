@@ -33,7 +33,7 @@ bodies = {
   multiple=True,
   default=["Sun", "Jupiter"],
   show_default=True,
-  help="Celestial body to simulate. You can add multiple bodies typing multiple times -cb"
+  help="Celestial body to simulate. You can add multiple bodies typing multiples -cb"
 )
 @click.option(
   "--dimensions", "-d",
@@ -57,11 +57,19 @@ bodies = {
   help="Only needed for animation. Type of numerical scheme. Euler symplectic and Stormer-Verlet are symplectic schemes. For static plot, all the scheme are used at once to compute 4 subplots."
 )
 @click.option(
+  "--time", "-t",
+  type=int,
+  multiple=True,
+  default=[5000],
+  show_default=True,
+  help="Time of integration (in years). You can add multiples times typing multiples -t"
+)
+@click.option(
   "--save", "-sa",
   is_flag=True,
   help="Save plot or animation"
 )
-def main(body, dimensions, plot, solver, save):
+def main(body, dimensions, plot, solver, time, save):
   # clear terminal (even history)
   print('\033c', end=None)
   # ascii art - for fun.
@@ -69,26 +77,30 @@ def main(body, dimensions, plot, solver, save):
 
   options = {"save": save}
 
-  nbody = NBodySimulation(
-    bodies=[bodies[b] for b in body],
-    t0=t0,
-    tN=tN,
-    dt=dt,
-    options=options
-  )
+  # possibility to perform multiple simulations
+  # if multiples times given
+  for t in time:
+    nbody = NBodySimulation(
+      bodies=[bodies[b] for b in body],
+      t0=t0,
+      tN=t * 365.25,
+      dt=dt,
+      options=options
+    )
 
-  if plot == "static":
-    nbody.simulate()
+    if plot == "static":
+      nbody.simulate()
 
-    if dimensions == 2:
-      nbody.plot2D()
-    elif dimensions == 3:
-      nbody.plot3D()
+      if dimensions == 2:
+        nbody.plot2D()
+      elif dimensions == 3:
+        nbody.plot3D()
 
-    nbody.plot_energy()
-    nbody.plot_angular_momentum()
-  elif plot == "animated":
-    nbody.animate(solver)
+      nbody.plot_energy()
+      nbody.plot_angular_momentum()
+      nbody.plot_area_swept()
+    elif plot == "animated":
+      nbody.animate(solver)
 
 if __name__ == "__main__":
   main()

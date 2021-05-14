@@ -1,7 +1,7 @@
 import numpy as np
 from tqdm import tqdm
 
-from .edo import (hamiltonian, compute_angular_momentum)
+from .edo import (hamiltonian, compute_angular_momentum, compute_area_swept)
 
 def rk2_derivatives_dqdt(edo, qk, pk, dt, bodies):
   k1 = dt * edo(qk, pk, bodies)
@@ -13,7 +13,7 @@ def rk2_derivatives_dpdt(edo, qk, pk, dt, bodies):
   k2 = dt * edo(qk, pk + (dt * k1), bodies)
   return (k1 + k2) / 2.
 
-def heun(dqdt, dpdt, q, p, dt, nt, bodies, energy, angular_momentum):
+def heun(dqdt, dpdt, q, p, dt, nt, bodies, energy, angular_momentum, area_swept):
   for k in tqdm(range(0, nt - 1), desc="heun"):
     qk, pk = q[k], p[k]
     #print("rk2 -- iteration:", k, qk)
@@ -22,8 +22,9 @@ def heun(dqdt, dpdt, q, p, dt, nt, bodies, energy, angular_momentum):
 
     energy[k + 1] = hamiltonian(q[k+1], p[k+1], bodies)
     angular_momentum[k + 1] = compute_angular_momentum(q[k+1], p[k+1], bodies)
+    area_swept[k + 1] = area_swept[k] + compute_area_swept(q[k], p[k], q[k+1], p[k+1], bodies)
 
-  return q, p, energy, angular_momentum
+  return q, p, energy, angular_momentum, area_swept
 
 
 # def rk4_derivatives_dqdt(edo, qk, pk, dt, bodies):
@@ -52,7 +53,7 @@ def heun(dqdt, dpdt, q, p, dt, nt, bodies, energy, angular_momentum):
 #   return q, p, energy
 
 
-def euler_symp(dqdt, dpdt, q, p, dt, nt, bodies, energy, angular_momentum):
+def euler_symp(dqdt, dpdt, q, p, dt, nt, bodies, energy, angular_momentum, area_swept):
   for k in tqdm(range(0, nt - 1), desc="euler-symplectic"):
     qk, pk = q[k], p[k]
     #print("euler -- iteration:", k, qk)
@@ -61,11 +62,12 @@ def euler_symp(dqdt, dpdt, q, p, dt, nt, bodies, energy, angular_momentum):
 
     energy[k + 1] = hamiltonian(q[k+1], p[k+1], bodies)
     angular_momentum[k + 1] = compute_angular_momentum(q[k+1], p[k+1], bodies)
+    area_swept[k + 1] = area_swept[k] + compute_area_swept(q[k], p[k], q[k+1], p[k+1], bodies)
 
-  return q, p, energy, angular_momentum
+  return q, p, energy, angular_momentum, area_swept
 
 
-def stormer_verlet(dqdt, dpdt, q, p, dt, nt, bodies, energy, angular_momentum):
+def stormer_verlet(dqdt, dpdt, q, p, dt, nt, bodies, energy, angular_momentum, area_swept):
   for k in tqdm(range(0, nt - 1), desc="stormer-verlet"):
     qk, pk = q[k], p[k]
     #print("stormer-verlet -- iteration:", k, qk)
@@ -75,5 +77,6 @@ def stormer_verlet(dqdt, dpdt, q, p, dt, nt, bodies, energy, angular_momentum):
 
     energy[k + 1] = hamiltonian(q[k+1], p[k+1], bodies)
     angular_momentum[k + 1] = compute_angular_momentum(q[k+1], p[k+1], bodies)
+    area_swept[k + 1] = area_swept[k] + compute_area_swept(q[k], p[k], q[k+1], p[k+1], bodies)
 
-  return q, p, energy, angular_momentum
+  return q, p, energy, angular_momentum, area_swept

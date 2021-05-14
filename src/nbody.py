@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -60,6 +61,15 @@ class NBodySimulation():
       }
     }
 
+    script_dir = os.path.dirname(__file__)
+    self.figures_dir = os.path.join(script_dir, f"../report/figures/{int(self.tN / 365.25)}_years")
+
+    print(script_dir, self.figures_dir)
+
+    # create figures folder if does not exist
+    if not os.path.isdir(self.figures_dir):
+      os.makedirs(self.figures_dir)
+
     if self.options["save"]:
       self.figure_options = set_size(width="full-size", subplots=(1,3))
     else:
@@ -76,7 +86,9 @@ class NBodySimulation():
     # energy mesh -- computed from the hamiltonian
     energy = np.zeros(self.nt)
     # angular momentum mesh
-    angular_momentum = np.zeros((self.nt, 3))
+    angular_momentum = np.zeros(self.nt)
+    # total area swept mesh
+    area_swept = np.zeros(self.nt)
 
     # set initial conditions
     q[0] = np.concatenate(np.array([body.initial_positions for body in bodies]))
@@ -87,14 +99,15 @@ class NBodySimulation():
     #print(hamiltonian(qk=q[0], pk=p[0], bodies=bodies))
     energy[0] = hamiltonian(qk=q[0], pk=p[0], bodies=bodies)
     angular_momentum[0] = compute_angular_momentum(qk=q[0], pk=p[0], bodies=bodies)
+    area_swept[0] = 0
 
-    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=dt, nt=nt, bodies=bodies, energy=energy, angular_momentum=angular_momentum)
+    return solver(dqdt=n_body_dqdt, dpdt=n_body_dpdt, q=q, p=p, dt=dt, nt=nt, bodies=bodies, energy=energy, angular_momentum=angular_momentum, area_swept=area_swept)
 
   def simulate(self):
     self.results = []
     for solver in self.solvers:
-      q, p, energy, angular_momentum = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
-      self.results.append({"solver": solver["name"], "color": solver["color"], "q": q, "p": p, "energy": energy, "angular_momentum": angular_momentum})
+      q, p, energy, angular_momentum, area_swept = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
+      self.results.append({"solver": solver["name"], "color": solver["color"], "q": q, "p": p, "energy": energy, "angular_momentum": angular_momentum, "area_swept": area_swept})
 
   def plot2D(self):
     self.fig = plt.figure(figsize=(set_size_square_plot(width="full-size", subplots=(2,2))))
@@ -121,21 +134,18 @@ class NBodySimulation():
     plt.tight_layout()
 
     if self.options["save"]:
-      self.fig.savefig("report/figures/orbital-plot2d.png", dpi=600)
+      self.fig.savefig(f"{self.figures_dir}/orbital-plot2d.png", dpi=600)
 
     plt.show()
 
   def plot3D(self):
-    self.fig = plt.figure(figsize=(set_size_square_plot(width="column-size", subplots=(1,1))))
-    # create subplot grid
+    self.fig = plt.figure(figsize=(set_size_square_plot(width="column-size", subplots=(2,2))))
     # loop for each result (corresponding to a specific solving method)
     for (index, result) in enumerate(self.results):
       # create a 3D plot
-      ax = self.fig.add_subplot(1, 1, 1, projection="3d")
+      ax = self.fig.add_subplot(2, 2, index + 1, projection="3d")
       # set plot parameters
-      #ax.set_title(result["solver"])
-
-      max_range = 0
+      ax.set_title(result["solver"], fontsize=8)
 
       # plotting each body
       for (ind, body) in enumerate(self.bodies):
@@ -144,33 +154,17 @@ class NBodySimulation():
         z_index = (ind * 3) + 2
 
         x, y, z = result["q"][:,x_index], result["q"][:,y_index], result["q"][:,z_index]
-
-        max_dim = max(max(x), max(y), max(z))
-        if max_dim > max_range:
-          max_range = max_dim
-
-        ax.plot(xs=x, ys=y, zs=z, c=body.color, label=body.name)
-
-      # limiting plot
-      ax.set_xlim([-max_range,max_range])
-      ax.set_ylim([-max_range,max_range])
-      ax.set_zlim([-max_range,max_range])
-
-      # change tick font
-      for tick in ax.get_xticklabels(which="both"):
-        tick.set_fontname("Roboto Condensed")
+        ax.plot(xs=x, ys=y, zs=z, c=body.color, marker=body.marker, label=body.name)
 
       # set labels
-      ax.set_xlabel("x (AU)")
-      ax.set_ylabel("y (AU)")
-      ax.set_zlabel("z (AU)")
+      ax.set_xlabel("x (AU)", fontsize=6)
+      ax.set_ylabel("y (AU)", fontsize=6)
+      ax.set_zlabel("z (AU)", fontsize=6)
 
-      ax.set_xticklabels([])
-      ax.set_yticklabels([])
-      ax.set_aspect('auto')
+    plt.tight_layout()
 
-      if self.options["save"]:
-        self.fig.savefig(f"figures/orbital-plot3d--{result['solver']}.pdf")
+    if self.options["save"]:
+      self.fig.savefig(f"{self.figures_dir}/orbital-plot3d.png", dpi=600)
 
     plt.show()
 
@@ -178,10 +172,10 @@ class NBodySimulation():
     self.fig = plt.figure(figsize=(set_size(width="full-size")))
     ax = self.fig.add_subplot(1, 1, 1)
 
-    ax.set_title(f"Energie", fontsize=8)
+    ax.set_title(f"Energie du système à {len(self.bodies)}-corps", fontsize=10)
 
     for (index, result) in enumerate(self.results):
-      solver_name = result["solver"]
+      #solver_name = result["solver"]
       # kg * au^2 / day^2 => kg * m^2 / s^2
       energy = result["energy"] * ((au_to_meter ** 2) / (day_to_second ** 2))
       ax.plot(self.time_mesh / 365.25, energy, c=result["color"])
@@ -190,35 +184,62 @@ class NBodySimulation():
 
 
     if self.options["save"]:
-      self.fig.savefig('report/figures/orbital-energy.pdf')
+      self.fig.savefig(f"{self.figures_dir}/orbital-energy.pdf")
 
     plt.show()
 
   def plot_angular_momentum(self):
-    self.fig = plt.figure(figsize=(set_size(width="full-size", subplots=(2,2))))
+    self.fig = plt.figure(figsize=(set_size(width="full-size")))
+    ax = self.fig.add_subplot(1, 1, 1)
+
+    ax.set_title(f"Moment angulaire du système à {len(self.bodies)}-corps", fontsize=10)
 
     for (index, result) in enumerate(self.results):
-      ax = self.fig.add_subplot(2, 2, index + 1)
+      #ax = self.fig.add_subplot(2, 2, index + 1)
+      #solver_name = result["solver"]
 
-      solver_name = result["solver"]
       # kg * au^2 / day => kg * m^2 / s
       angular_momentum = result["angular_momentum"] * ((au_to_meter ** 2) / (day_to_second))
+      ax.plot(self.time_mesh / 365.25, angular_momentum, c=result["color"], label=result["solver"])
 
-      for (ind, body) in enumerate(self.bodies):
-        ax.plot(self.time_mesh / 365.25, angular_momentum[:,ind], c=body.color, label=body.name)
+      #for (ind, body) in enumerate(self.bodies):
+      #  ax.plot(self.time_mesh / 365.25, angular_momentum[:,ind], c=body.color, label=body.name)
 
       ax.tick_params(axis='both', which='major', labelsize=8)
       ax.tick_params(axis='both', which='minor', labelsize=6)
 
-      ax.set_xlabel("Temps [années]", fontsize=6)
-      ax.set_ylabel("L [$kg.m^2.s^{-1}$]", fontsize=6)
+      ax.set_xlabel("Temps [années]", fontsize=8)
+      ax.set_ylabel("L [$kg.m^2.s^{-1}$]", fontsize=8)
       #ax.text(0.5, 1.05, f"({index + 1})", ha="center", transform=ax.transAxes, size=8)
-      ax.set_title(f"{solver_name}", fontsize=8)
+      #ax.set_title(f"{solver_name}", fontsize=8)
 
     plt.tight_layout()
 
     if self.options["save"]:
-      self.fig.savefig('report/figures/orbital-angular-momentum.pdf')
+      self.fig.savefig(f"{self.figures_dir}/orbital-angular-momentum.pdf")
+
+    plt.show()
+
+  def plot_area_swept(self):
+    self.fig = plt.figure(figsize=(set_size(width="full-size")))
+    ax = self.fig.add_subplot(1, 1, 1)
+
+    ax.set_title(f"Surface totale balayée pour le système à {len(self.bodies)}-corps", fontsize=10)
+
+    for (index, result) in enumerate(self.results):
+      area_swept = result["area_swept"]
+      ax.plot(self.time_mesh / 365.25, area_swept, c=result["color"], label=result["solver"])
+
+      #ax.tick_params(axis='both', which='major', labelsize=8)
+      #ax.tick_params(axis='both', which='minor', labelsize=6)
+
+      ax.set_xlabel("Temps [années]", fontsize=8)
+      ax.set_ylabel("Aire totale balayée [$(AU)^2$]", fontsize=8)
+
+    plt.tight_layout()
+
+    if self.options["save"]:
+      self.fig.savefig(f"{self.figures_dir}/orbital-total_area_swept.pdf")
 
     plt.show()
 
@@ -301,7 +322,7 @@ class NBodySimulation():
 
     # solve for that specific solver
     solver = self.solvers2[solver_name]
-    self.q, self.p, energy, angular_momentum = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
+    self.q, self.p, energy, angular_momentum, area_swept = self.solve(solver=solver["call"], dt=self.dt, nt=self.nt, bodies=self.bodies)
 
     max_range = self.limit_plot(self.q)
 
@@ -312,11 +333,12 @@ class NBodySimulation():
 
     # text, annotations,...
     self.elapsed_text = self.axes.text2D(
-      x=0.24,
-      y=1.05,
+      x=0.5,
+      y=0.85,
       s='',
+      bbox={'facecolor':'w', 'alpha':0.5, 'pad':5},
       transform = self.axes.transAxes,
-      va='center'
+      ha='center'
     )
 
     ani = animation.FuncAnimation(

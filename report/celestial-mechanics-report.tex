@@ -291,49 +291,115 @@ Par conséquent, l’erreur commise à chaque pas de temps est de l’ordre de $
 
 \section{Résultats}
 \subsection{Illustration orbitale}
-
 Nous commençons par illustrer l'évolution orbitales pour les 3 schémas numériques présentés plus haut.
 
 \begin{figure}[H]
     \centering
-    \includegraphics{figures/orbital-plot2d.png}
-    \caption{(\emph{Schéma de Heun}). Evolution orbitale en 3 dimension de l'orbite du Soleil (\emph{point jaune}), de Jupiter (\emph{rouge}) et de Saturne (\emph{brun}) pour les $5000$ prochaines années.}
-    \label{fig:plot2D}
+    \includegraphics{figures/5000_years/orbital-plot2d.png}
+    \caption{Evolution orbitale en 2 dimension de l'orbite du Soleil (\emph{point jaune}), de Jupiter (\emph{rouge}) et de Saturne (\emph{brun}) pour les $5000$ prochaines années.}
+    \label{fig:plot2D--5000}
 \end{figure}
 
-En en ce qui concerne le schéma de \emph{Heun}, il est clair que les orbites de Saturne et Jupiter dévient fortement de leur trajectoire. Si on réalise une simulation sur $50$ années (\textbf{voir annexe}), on observe que ces deux planètes dévient fortement de leur trajectoire à chaque révolution autour du Soleil.
+En en ce qui concerne le schéma de \emph{Heun}, il est clair que les orbites de Saturne et Jupiter dévient fortement de leur trajectoire. Si on réalise une simulation sur $50$ années (\autoref{fig:plot2D--50}), on observe que ces deux planètes dévient fortement de leur trajectoire à chaque révolution autour du Soleil.
 Par contre on observe que les orbite de Jupiter et Saturne sont globalement stables pour les 2 schémas symplectiques (\emph{Euler symplectique} et \emph{Stormer-Verlet}). En regardant la \autoref{fig:plot2D}, on remarque en fait que les orbites de Jupiter et Saturne ne sont pas constamment sur la même trajectoire mais qu'il y a de légères fluctuations. Toutefois ces fluctuations sont mineures et la trajectoire de ces orbites est globalement conservée sur $5000$ années. Cela laisse suggérer que l'énergie d'un système hamiltonien est conservée en moyenne pour les schémas symplectiques. A noter que l'on ne remarque pas ce décalage pour le Soleil étant donné que la position de ce dernier peut-être considérée comme globalement fixe.
 
-Nous illustrons finalement l'évolution d'intégrales premières c'est à dire dans le cas de notre système de quantités conservées telles que l'énergie totale ou encore le moment angulaire. Nous savons qu'en théorie ces 2 quantités sont conservées.
+\begin{figure}[H]
+  \centering
+  \includegraphics{figures/50_years/orbital-plot2d.png}
+  \caption{Evolution orbitale en 2 dimension de l'orbite du Soleil (\emph{point jaune}), de Jupiter (\emph{rouge}) et de Saturne (\emph{brun}) pour les $50$ prochaines années.}
+  \label{fig:plot2D--50}
+\end{figure}
+
+Nous illustrons maintenant l'évolution d'intégrales premières c'est à dire dans le cas de notre système de quantités conservées telles que l'énergie totale ou encore le moment angulaire. Nous savons qu'en théorie ces 2 quantités sont conservées.
 
 \subsection{Conservation de l'énergie}
 
-% TODO plot + commenter
+L'Hamiltonien du système étant la somme de l'énergie cinétique et potentielle de celui-ci. On peut directement calculer l'énergie du système en fonction du temps en calculant l'Hamiltonien totale du système.
 
 \begin{figure}[H]
     \centering
-    \includegraphics{figures/orbital-energy.pdf}
-    \caption{Conservation de l'énergie du système Hamiltonien en fonction du temps. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
-    \label{fig:orbital-energy}
+    \includegraphics{figures/5000_years/orbital-energy.pdf}
+    \caption{Variation de l'énergie du système du système à 3 corps sur \textbf{$5000$ années} pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
+    \label{fig:orbital-energy--5000}
 \end{figure}
 
-Nous voyons que pour le schéma de Heun, il y a une perte d'énergie au cours du temps ce qui explique le décalage dans l'orbite de Saturne et Jupiter pour ce même schéma. Pour les 2 schémas symplectiques, nous observons que l'énergie est variable mais oscille très proche d'une même valeur d'énergie. C'est à dire que la structure Hamiltonienne du système est conservée (\emph{i.e. le théorème de Liouville est respecté -- LMAT1261}). Etant donné que la période de révolution est grande devant la période de fluctuation de l'énergie, l'orbite est stable pour les 2 schémas symplectiques
+Nous voyons que pour le schéma de Heun, il y a une perte d'énergie au cours du temps ce qui explique le décalage dans l'orbite de Saturne et Jupiter pour ce même schéma. Pour les 2 schémas symplectiques, nous observons que l'énergie est variable mais oscille très proche d'une même valeur d'énergie. C'est à dire que la structure Hamiltonienne du système est conservée (\emph{i.e. le théorème de Liouville est respecté -- LMAT1261}). Cette oscillation est mieux visible si on considère une simulation sur $50$ années
+
+\begin{figure}[H]
+  \centering
+  \includegraphics{figures/50_years/orbital-energy.pdf}
+  \caption{Variation de l'énergie du système du système à 3 corps sur \textbf{$50$ années} pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
+  \label{fig:orbital-energy--50}
+\end{figure}
+
+
+Etant donné que la période de révolution est grande devant la période de fluctuation de l'énergie, l'orbite est stable pour les 2 schémas symplectiques.
 
 \subsection{Conservation du moment angulaire}
+Nous analysons dès à présent la variation du moment angulaire du système $\vec{L} = \sum_{i=1}^{N} \vec{l}_i$ en fonction du temps. Si ce dernier est conservé alors le mouvement orbital est plan comme nous pouvons le voir sur la figure représentant l'évolution orbitale en $3D$ (voir annexe).
 
 \begin{figure}[H]
     \centering
     \includegraphics{figures/orbital-angular-momentum.pdf}
-    \caption{Conservation du moment angulaire en fonction du temps des 3 corps célestes pour les différents schémas numériques utilisés. En \emph{jaune} le moment angulaire du \textbf{Soleil}. En \emph{rouge}, le moment angulaire de \textbf{Jupiter} et en \emph{brun}, le moment angulaire de \textbf{Saturne}}
+    \caption{Conservation du moment angulaire en fonction du temps du système à 3 corps pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
     \label{fig:orbital-angular-momentum}
 \end{figure}
 
-Puisque le Soleil est situé au centre du repère, le moment angulaire de ce dernier est nul. En ce qui concerne Jupiter et Saturne, leur moment angulaire n'est pas conservé pour le schéma de Heun, on voit qu'il augmente. C'est toutefois bien le cas pour les 2 schémas symplectiques.
+Le moment angulaire du système n'est pas conservé pour le schéma de Heun. En effet, le moment angulaire total $L$ d'un système à $N$ corps est donné par,
+\begin{equation}
+  \vec{L} = \sum_{i=1}^N \vec{l}_i = \sum_{i=1}^N \vec{r}_i \times m_i \vec{v}_i
+\end{equation}
+Nous avons que dans le cas du schéma de Heun, l'orbite déviait de sa trajectoire et balayait des aires de plus en plus grandes c'est à dire que le rayon vecteur reliant le centre du repère à Jupiter et Saturne augmente en fonction du temps. Donc le moment angulaire total ne peut qu'augmenter.
 
-% TODO plot + commenter
+Bien évidemment, ce dernier est conservé pour les $2$ schémas symplectiques comme en témoigne la figure (\ref{fig:orbital-angular-momentum}).
+
+\section{Surface totale balayée}
+
+Considérons une surface infinitésimale $dA$ balayée par un corps céleste entre en temps $t$ et $t + dt$. La position de ce corps au temps $t$ est $\vec{r}_1$ et au temps $t + dt$ est $\vec{r}_2$. Géométriquement, cette surface infinitésimale se confond avec l'aire d'un triangle en supposant que l'angle entre les $2$ rayons vecteurs $\vec{r}_1$ et $\vec{r}_2$ est $d\theta$.
+\begin{align}
+  dA
+    &= \frac{1}{2} ||\vec{r}_2|| ||\vec{r}_2|| \sin(d\theta) \\
+    &\approx \frac{1}{2} ||\vec{r}_2|| ||\vec{r}_2|| d\theta, \quad d\theta \ll 1
+\end{align}
+
+
+A partir de la, on peut approximer l'aire balayée entre $2$ temps successifs $t_j$ et $t_{j+1}$, $j \in \Z$. Cette approximation est d'autant plus précise que le pas de temps $\Delta t$ est petit.
+\begin{equation}
+  \Delta A \approx \frac{1}{2} ||\vec{r}_2|| ||\vec{r}_2|| \Delta \theta
+\end{equation}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics{figures/5000_years/orbital-total_area_swept.pdf}
+  \caption{Somme des surfaces balayées par les différentes planètes pour les \textbf{$5000$ prochaines années} et ce pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
+  \label{fig:orbital-total_area_swept--5000}
+\end{figure}
+
+A chaque temps $t_j$, $j \in \Z$ nous avons calculé la somme des surfaces totales balayées par l'ensemble des corps célestes de notre système entre $t = 0$ et $t = t_j$. Sur cette figure, nous voyons que l'aire totale balayée pour le schéma de Heun suit une loi de puissance. A nouveau, comme nous l'avons remarqué à la figure (\ref{fig:plot2D--5000}), l'orbite des planètes dévie de sa trajectoire pour ce schéma. Par contre, pour les schémas symplectiques, la surface totale balayée suit une loi qui semble être linéaire ce qui montre que l'orbite des planètes est stable et ne dévie pas de sa trajectoire à chaque révolution.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics{figures/50_years/orbital-total_area_swept.pdf}
+  \caption{Somme des surfaces balayées par les différentes planètes pour les \textbf{$50$ prochaines années} et ce pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
+  \label{fig:orbital-total_area_swept--50}
+\end{figure}
+
+Si on se restreint à une simulation sur $50$ années, on remarque que l'aire totale balayée pour les schémas symplectiques n'obéit pas tout à fait à une loi linéaire. Si on est attentif, on observe de très légères fluctuations. Ce sont les fluctuations dans les orbites de Jupiter et Saturne que nous observons à la figure (\ref{fig:plot2D--5000}) dues au fait que l'énergie oscille autour d'une certaine valeur (\autoref{fig:orbital-energy--5000}).
 
 \section{Conclusion}
+Nous avons simulé pour les $5000$ prochaines années l'évolution orbitale d'un système à $3$ corps comprenant le Soleil, Jupiter et Saturne. Pour cela, nous utilisé et comparé $3$ schémas numériques différents à savoir les schémas de Heun, Euler symplectique et Stormer-Verlet. Le premier est un schéma numérique dit \textbf{classiques} qui fait partie de la famille des intégrateurs de \textbf{Runge-Kutta}. Ces derniers peuvent monter jusqu'à des ordres élevés de convergences et en ce sens peuvent être très précis dans leurs approximations (contre un coût important en ressources informatiques). Le schéma de Heun est un aussi appelé \textbf{Runge-Kutta d'ordre 2}. Nous avons montré qu'il converge à l'ordre $2$ d'où son nom. Il a un ordre de convergence plus important que l'Euler symplectique (ordre $1$) et égale au Stormer-Verlet (ordre $2$). Le problème de ce schéma et plus généralement de la famille des intégrateurs de type Runge-Kutta est qu'ils ne sont pas symplectiques et donc ils ne conservent pas l'énergie du système. Par conséquent nous avons vu que l'orbite des planètes n'était pas stable mais déviait de sa trajectoire et balayait des surfaces de plus en plus grandes. Les schémas d'Euler symplectique et Stormer-Verlet sont eux des schéma dit \textbf{symplectiques} c'est à dire qu'ils sont spécialement conçu pour intégrer des systèmes Hamiltoniens et qu'ils conservent en moyenne l'énergie du système. Nous avons qu'avec de tels schémas numériques, l'orbite des planètes était plus ou moins stable, subissant de très légères fluctuations qui sont dues justement aux fluctuations d'énergie autour d'une valeur moyenne. Ceci nous est d'ailleurs confirmé si on regarde à la surface totale balayée par l'ensemble des corps célestes pendant un temps plus court que $5000$ années. Nous avons vu qu'il y a bien de très légères fluctuations preuve que l'orbite n'est pas complètement stable mais oscille très légèrement autour de sa trajectoire théorique.
 
 \newpage
+\appendix
+\appendixpage
+\addappheadtotoc
+
+\section{Evolution orbitale du système en 3 dimensions}
+\begin{figure}[H]
+  \centering
+  \includegraphics{figures/5000_years/orbital-plot3d.png}
+  \caption{Evolution orbitale en 2 dimension de l'orbite du Soleil (\emph{point jaune}), de Jupiter (\emph{rouge}) et de Saturne (\emph{brun}) pour les $5000$ prochaines années.}
+  \label{fig:orbital-plot3D--5000}
+\end{figure}
 
 \end{document}
