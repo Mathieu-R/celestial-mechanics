@@ -255,11 +255,20 @@ Effectuons un développement de Taylor à l'ordre $2$ de $f(q_{j+1}, p_{j+1/2})$
         &+ \frac{1}{2}\pdv[2]{f_j}{p}\left( \frac{(\Delta t)^2}{4} f_j^2 \right) + \frac{1}{2}\pdv{f_j}{q,p}\left( (\Delta t) g(q_j, p_{j+1+2}) \frac{\Delta t}{2}f_j \right)
 \end{align}
 
+Nous effectuons également un développement de Taylor à l'ordre $2$ de $g_{q_j, p_{j+1/2}}$ atour de $\vec{a} = (q_j, p_j)$.
+\begin{align*}
+  g(q_j, p_{j+1/2})
+    &= g_j + \pdv{g_j}{p}(p_{j+1/2} - p_j) + \frac{1}{2} \pdv[2]{g_j}{p}(p_{j+1/2} - p_j)^2 \\
+    &= g_j - \pdv{g_j}{p} \frac{(\Delta t)}{2} f_j + \frac{1}{2} \pdv[2]{g_j}{p}\frac{(\Delta t)^2}{4}(f_j)^2
+\end{align*}
+
 Dès lors,
 \begin{align}
   p_{j+1}
-    &= p_j + (\Delta t)f_j - \frac{(\Delta t)^2}{2} \left( g(q_j, p_{j+1/2}) \pdv{f_j}{q} - \frac{f_j}{2} \pdv{f_j}{p} \right) \\
-    &- \frac{(\Delta t)^3}{4} \left( g^2(q_j, p_{j+1/2}) \pdv[2]{f_j}{q} + \frac{f_j^2}{4} \pdv[2]{f_j}{p} + \frac{1}{2}g(q_j, p_{j+1/2}) f_j \pdv{f_j}{q,p} \right)
+    &= p_j - \frac{\Delta t}{2}f_j - \frac{\Delta t}{2}f_j - \pdv{f_j}{q}\frac{(\Delta t)^2}{2} \left( g_j - \pdv{g_j}{p}\frac{\Delta t}{2}f_j + \frac{1}{2}\pdv[2]{g_j}{p} \frac{(\Delta t)^2}{4}(f_j)^2 \right) \\
+    &+ \pdv{f_j}{p}\frac{(\Delta t)^2}{2}f_j - \frac{1}{2}\pdv[2]{f_j}{q}\frac{(\Delta t)^3}{2} \left( g_j - \pdv{g_j}{p}f_j + \frac{1}{2}\pdv[2]{g_j}{p} \frac{(\Delta t)^2}{4}(f_j)^2 \right)^2 \\
+    &+ \frac{1}{2}\pdv[2]{f_j}{p}\frac{(\Delta t)^3}{4} (f_j)^2 + \frac{1}{2}\pdv[2]{f_j}{q,p} \frac{(\Delta t)^3}{4}f_j \left( g_j - \pdv{g_j}{p}f_j + \frac{1}{2}\pdv[2]{g_j}{p} \frac{(\Delta t)^2}{4}(f_j)^2 \right) \\
+    &= p_j - (\Delta t)f_j - \frac{(\Delta t)^2}{2} \left( \pdv{f_j}{q}g_j - \pdv{f_j}{p}f_j \right) + \mathcal{O}((\Delta t)^3)
 \end{align}
 
 Regardons au schéma de Taylor à l'ordre $2$.
@@ -323,12 +332,12 @@ L'Hamiltonien du système étant la somme de l'énergie cinétique et potentiell
     \label{fig:orbital-energy--5000}
 \end{figure}
 
-Nous voyons que pour le schéma de Heun, il y a une perte d'énergie au cours du temps ce qui explique le décalage dans l'orbite de Saturne et Jupiter pour ce même schéma. Pour les 2 schémas symplectiques, nous observons que l'énergie est variable mais oscille très proche d'une même valeur d'énergie. C'est à dire que la structure Hamiltonienne du système est conservée (\emph{i.e. le théorème de Liouville est respecté -- LMAT1261}). Cette oscillation est mieux visible si on considère une simulation sur $50$ années
+Nous voyons que pour le schéma de Heun, il y a une perte d'énergie au cours du temps ce qui explique le décalage dans l'orbite de Saturne et Jupiter pour ce même schéma. Pour les 2 schémas symplectiques, nous observons que l'énergie est variable mais oscille autour d'une certaine valeur d'énergie. C'est à dire que la structure Hamiltonienne du système est conservée (\emph{i.e. le théorème de Liouville est respecté -- LMAT1261}). Cette oscillation est mieux visible si on considère une simulation sur $50$ années
 
 \begin{figure}[H]
   \centering
   \includegraphics{figures/50_years/orbital-energy.pdf}
-  \caption{Variation de l'énergie du système du système à 3 corps sur \textbf{$50$ années} pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
+  \caption{Variation de l'énergie du système à 3 corps sur \textbf{$50$ années} pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
   \label{fig:orbital-energy--50}
 \end{figure}
 
@@ -336,11 +345,11 @@ Nous voyons que pour le schéma de Heun, il y a une perte d'énergie au cours du
 Etant donné que la période de révolution est grande devant la période de fluctuation de l'énergie, l'orbite est stable pour les 2 schémas symplectiques.
 
 \subsection{Conservation du moment angulaire}
-Nous analysons dès à présent la variation du moment angulaire du système $\vec{L} = \sum_{i=1}^{N} \vec{l}_i$ en fonction du temps. Si ce dernier est conservé alors le mouvement orbital est plan comme nous pouvons le voir sur la figure représentant l'évolution orbitale en $3D$ (voir annexe).
+Nous analysons dès à présent la variation du moment angulaire du système $\vec{L} = \sum_{i=1}^{N} \vec{l}_i$ en fonction du temps. Si ce dernier est conservé alors le mouvement orbital est plan.
 
 \begin{figure}[H]
     \centering
-    \includegraphics{figures/orbital-angular-momentum.pdf}
+    \includegraphics{figures/5000_years/orbital-angular-momentum.pdf}
     \caption{Conservation du moment angulaire en fonction du temps du système à 3 corps pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
     \label{fig:orbital-angular-momentum}
 \end{figure}
@@ -351,21 +360,31 @@ Le moment angulaire du système n'est pas conservé pour le schéma de Heun. En 
 \end{equation}
 Nous avons que dans le cas du schéma de Heun, l'orbite déviait de sa trajectoire et balayait des aires de plus en plus grandes c'est à dire que le rayon vecteur reliant le centre du repère à Jupiter et Saturne augmente en fonction du temps. Donc le moment angulaire total ne peut qu'augmenter.
 
-Bien évidemment, ce dernier est conservé pour les $2$ schémas symplectiques comme en témoigne la figure (\ref{fig:orbital-angular-momentum}).
+Bien évidemment, ce dernier est conservé pour les $2$ schémas symplectiques comme en témoigne la figure (\ref{fig:orbital-angular-momentum}). Nous pouvons voir sur la figure représentant l'évolution orbitale en $3D$ (voir annexe) que le mouvement orbital est plan pour ces 2 schémas.
 
 \section{Surface totale balayée}
 
 Considérons une surface infinitésimale $dA$ balayée par un corps céleste entre en temps $t$ et $t + dt$. La position de ce corps au temps $t$ est $\vec{r}_1$ et au temps $t + dt$ est $\vec{r}_2$. Géométriquement, cette surface infinitésimale se confond avec l'aire d'un triangle en supposant que l'angle entre les $2$ rayons vecteurs $\vec{r}_1$ et $\vec{r}_2$ est $d\theta$.
-\begin{align}
-  dA
-    &= \frac{1}{2} ||\vec{r}_2|| ||\vec{r}_2|| \sin(d\theta) \\
-    &\approx \frac{1}{2} ||\vec{r}_2|| ||\vec{r}_2|| d\theta, \quad d\theta \ll 1
-\end{align}
 
+
+\begin{center}
+    \begin{tikzpicture}[scale=2]
+    \draw(0,0)--node[below]{$\vec{r}_1$} (1.7,0)
+        --node[above]{$\vec{r}_2$}(0,1)
+        --node[left]{$r_2 d\theta$}(0,0);
+    \draw[very thin,<->](1.4,0) arc [start angle=180,end angle=150, radius=0.3];
+    \node at (1.3,0.1){$d\theta$};
+  \end{tikzpicture}
+\end{center}
+
+
+\begin{align}
+  dA &\approx \frac{1}{2} ||\vec{r}_1|| ||\vec{r}_2|| d\theta, \quad d\theta \ll 1
+\end{align}
 
 A partir de la, on peut approximer l'aire balayée entre $2$ temps successifs $t_j$ et $t_{j+1}$, $j \in \Z$. Cette approximation est d'autant plus précise que le pas de temps $\Delta t$ est petit.
 \begin{equation}
-  \Delta A \approx \frac{1}{2} ||\vec{r}_2|| ||\vec{r}_2|| \Delta \theta
+  \Delta A \approx \frac{1}{2} ||\vec{r}_1|| ||\vec{r}_2|| \Delta \theta
 \end{equation}
 
 \begin{figure}[H]
