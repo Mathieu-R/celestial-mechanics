@@ -139,7 +139,7 @@ class NBodySimulation():
     plt.show()
 
   def plot3D(self):
-    self.fig = plt.figure(figsize=(set_size_square_plot(width="column-size", subplots=(2,2))))
+    self.fig = plt.figure(figsize=(set_size_square_plot(width="full-size", subplots=(2,2))))
     # loop for each result (corresponding to a specific solving method)
     for (index, result) in enumerate(self.results):
       # create a 3D plot
