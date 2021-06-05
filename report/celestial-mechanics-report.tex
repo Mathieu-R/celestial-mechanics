@@ -20,7 +20,7 @@
 
 Le but de ce projet est de simuler l'évolution de l'orbite de Jupiter pour les $5000$ prochaines années. Dans un premier temps nous ne tiendrons compte que de Jupiter et du Soleil (\textbf{problème à 2 corps}) et nous ajouterons par la suite la contribution de Saturne (\textbf{problème à 3 corps}).
 
-Afin d'illustrer ces évolutions orbitales, nous mettrons en oeuvre 3 schémas numériques différents à savoir les schémas de \emph{Heun}, \emph{Euler symplectique} et \emph{Stormer-Verlet}. Nous verrons que ce premier ne conserve pas l'énergie tandis que ces 2 derniers sont symplectiques c'est à dire qu'ils conservent la structure Hamiltonienne.
+Afin d'illustrer ces évolutions orbitales, nous mettrons en oeuvre 3 schémas numériques différents à savoir les schémas de \emph{Heun}, \emph{Euler symplectique} et \emph{Stormer-Verlet}. Nous verrons que ce premier ne conserve pas l'énergie tandis que ces 2 derniers sont symplectiques c'est à dire qu'ils conservent la structure Hamiltonienne du système.
 
 \section{Dérivation des équations canoniques}
 \subsection{Problème à 2 corps}
@@ -46,17 +46,17 @@ Le Lagrangien est donc,
   \lag = \frac{1}{2} m_1 \vd{r}_1^2 + \frac{1}{2} m_2 \vd{r}_2^2 + \frac{Gm_1m_2}{|\vec{r}_1 - \vec{r}_2|}
 \end{equation}
 
-Lorsqu'on cherche une solution analytique, il est judicieux de réexprimer le Lagrangien en terme du mouvement relatif $\vec{r}$ et du mouvement du centre de masse $\vec{r}_{CM}$ et de passer en coordonnées sphériques. Ce n'est pas d'utilité dans notre cas.
+Lorsqu'on cherche une solution analytique, il est judicieux de réexprimer le Lagrangien en terme du mouvement relatif $\vec{r}$ et du mouvement du centre de masse $\vec{r}_{CM}$ et de passer en coordonnées sphériques. Ce n'est pas d'utilité dans le cas de notre résolution numérique.
 
-L'Hamiltonien est la transformée de legendre du Lagrangien,
+L'Hamiltonien est la transformée de legendre du Lagrangien et est donc donné par,
 \begin{align}
   \ham
     &= \sum_{i=1}^2 \vec{p}_i \cdot \vec{r}_i - \lag \\
-    &= \frac{\vec{p}_1^2}{2m_1} + \frac{\vec{p}_2^2}{2m_1} - \frac{Gm_1m_2}{|\vec{r}_1 - \vec{r}_2|}
+    &= \frac{\vec{p}_1^2}{2m_1} + \frac{\vec{p}_2^2}{2m_2} - \frac{Gm_1m_2}{|\vec{r}_1 - \vec{r}_2|}
 \end{align}
  où $\vec{p}_i$ est l'impulsion conjuguée de la i-ème masse.
 
-Les équations canoniques sont finalement données par,
+Les équations canoniques d'un hamiltonien $\mathcal{H}$ quelconque sont données par,
 \begin{equation} \label{eq:canonical-equations}
  \dot{p}_i = -\pdv{\ham}{r_i} \quad ; \quad \dot{r_i} = \pdv{\ham}{p_i}
 \end{equation}
@@ -67,7 +67,7 @@ Dans notre simulation, nous voulons également prendre en compte la présence de
 
 Nous prenons en compte tous les potentiels d'interaction entre les différentes masses. L'Hamiltonien devient,
 \begin{equation}
-    \ham = \sum_{i=1}^N \frac{\vec{p}_i^2}{2m_i} + \sum_{i<j}^{N} \frac{Gm_i m_j}{|\vec{r}_i - \vec{r}_j|}
+    \ham = \sum_{i=1}^N \frac{\vec{p}_i^2}{2m_i} + \sum_{1\leq i<j \leq N} \frac{Gm_i m_j}{|\vec{r}_i - \vec{r}_j|}
 \end{equation}
 où $|\vec{r}_i - \vec{r}_j| \equiv \vec{r}_{ij}$ est la distance relative entre la masse $m_i$ et la masse $m_j$.
 
@@ -296,7 +296,7 @@ On regarde à la différence entre le schéma de Stormer-Verlet et celui de Tayl
   p_{\text{Stormer-Verlet}} - p_{\text{Taylor}} = \mathcal{O}((\Delta t)^3)
 \end{equation}
 
-Par conséquent, l’erreur commise à chaque pas de temps est de l’ordre de $(\Delta t)^3$ et puisque cette différence tend vers zéro pour $(\Deltat) \rightarrow 0$, on trouve que la méthode de \emph{Stormer-Verlet} est convergente à l’ordre $\tau = ((\Delta t)^2)$.
+Par conséquent, l’erreur commise à chaque pas de temps est de l’ordre de $(\Delta t)^3$ et puisque cette différence tend vers zéro pour $(\Delta t) \rightarrow 0$, on trouve que la méthode de \emph{Stormer-Verlet} est convergente à l’ordre $\tau = ((\Delta t)^2)$.
 
 \section{Résultats}
 \subsection{Illustration orbitale}
@@ -310,7 +310,7 @@ Nous commençons par illustrer l'évolution orbitales pour les 3 schémas numér
 \end{figure}
 
 En en ce qui concerne le schéma de \emph{Heun}, il est clair que les orbites de Saturne et Jupiter dévient fortement de leur trajectoire. Si on réalise une simulation sur $50$ années (\autoref{fig:plot2D--50}), on observe que ces deux planètes dévient fortement de leur trajectoire à chaque révolution autour du Soleil.
-Par contre on observe que les orbite de Jupiter et Saturne sont globalement stables pour les 2 schémas symplectiques (\emph{Euler symplectique} et \emph{Stormer-Verlet}). En regardant la \autoref{fig:plot2D}, on remarque en fait que les orbites de Jupiter et Saturne ne sont pas constamment sur la même trajectoire mais qu'il y a de légères fluctuations. Toutefois ces fluctuations sont mineures et la trajectoire de ces orbites est globalement conservée sur $5000$ années. Cela laisse suggérer que l'énergie d'un système hamiltonien est conservée en moyenne pour les schémas symplectiques. A noter que l'on ne remarque pas ce décalage pour le Soleil étant donné que la position de ce dernier peut-être considérée comme globalement fixe.
+Par contre on observe que les orbite de Jupiter et Saturne sont globalement stables pour les 2 schémas symplectiques (\emph{Euler symplectique} et \emph{Stormer-Verlet}). En regardant la \autoref{fig:plot2D--5000}, on remarque en fait que les orbites de Jupiter et Saturne ne sont pas constamment sur la même trajectoire mais qu'il y a de légères fluctuations. Toutefois ces fluctuations sont mineures et la trajectoire de ces orbites est globalement conservée sur $5000$ années. Cela laisse suggérer que l'énergie du système hamiltonien est conservée en moyenne pour les schémas symplectiques. A noter que l'on ne remarque pas ce décalage pour le Soleil étant donné que la position de ce dernier peut-être considérée comme globalement fixe.
 
 \begin{figure}[H]
   \centering
@@ -323,7 +323,7 @@ Nous illustrons maintenant l'évolution d'intégrales premières c'est à dire d
 
 \subsection{Conservation de l'énergie}
 
-L'Hamiltonien du système étant la somme de l'énergie cinétique et potentielle de celui-ci. On peut directement calculer l'énergie du système en fonction du temps en calculant l'Hamiltonien totale du système.
+L'Hamiltonien du système étant la somme de l'énergie cinétique et potentielle de celui-ci. On peut directement calculer l'énergie du système en fonction du temps en calculant l'Hamiltonien total du système.
 
 \begin{figure}[H]
     \centering
@@ -358,7 +358,7 @@ Le moment angulaire du système n'est pas conservé pour le schéma de Heun. En 
 \begin{equation}
   \vec{L} = \sum_{i=1}^N \vec{l}_i = \sum_{i=1}^N \vec{r}_i \times m_i \vec{v}_i
 \end{equation}
-Nous avons que dans le cas du schéma de Heun, l'orbite déviait de sa trajectoire et balayait des aires de plus en plus grandes c'est à dire que le rayon vecteur reliant le centre du repère à Jupiter et Saturne augmente en fonction du temps. Donc le moment angulaire total ne peut qu'augmenter.
+Nous avons vu que dans le cas du schéma de Heun, l'orbite déviait de sa trajectoire et balayait des aires de plus en plus grandes c'est à dire que le rayon vecteur reliant le centre du repère à Jupiter et Saturne augmente en fonction du temps. Donc le moment angulaire total ne peut qu'augmenter.
 
 Bien évidemment, ce dernier est conservé pour les $2$ schémas symplectiques comme en témoigne la figure (\ref{fig:orbital-angular-momentum}). Nous pouvons voir sur la figure représentant l'évolution orbitale en $3D$ (voir annexe) que le mouvement orbital est plan pour ces 2 schémas.
 
@@ -379,10 +379,12 @@ Considérons une surface infinitésimale $dA$ balayée par un corps céleste ent
 
 
 \begin{align}
-  dA &\approx \frac{1}{2} ||\vec{r}_1|| ||\vec{r}_2|| d\theta, \quad d\theta \ll 1
+  dA
+    &= \frac{1}{2} ||\vec{r}_1|| ||\vec{r}_2|| \sin(d\theta) \\
+    &\approx \frac{1}{2} ||\vec{r}_1|| ||\vec{r}_2|| d\theta, \quad d\theta \ll 1
 \end{align}
 
-A partir de la, on peut approximer l'aire balayée entre $2$ temps successifs $t_j$ et $t_{j+1}$, $j \in \Z$. Cette approximation est d'autant plus précise que le pas de temps $\Delta t$ est petit.
+A partir de là, on peut approximer l'aire balayée entre $2$ temps successifs $t_j$ et $t_{j+1}$, $j \in \Z$. Cette approximation est d'autant plus précise que le pas de temps $\Delta t$ est petit.
 \begin{equation}
   \Delta A \approx \frac{1}{2} ||\vec{r}_1|| ||\vec{r}_2|| \Delta \theta
 \end{equation}
@@ -390,7 +392,7 @@ A partir de la, on peut approximer l'aire balayée entre $2$ temps successifs $t
 \begin{figure}[H]
   \centering
   \includegraphics{figures/5000_years/orbital-total_area_swept.pdf}
-  \caption{Somme des surfaces balayées par les différentes planètes pour les \textbf{$5000$ prochaines années} et ce pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
+  \caption{Somme des surfaces balayées par les différentes planètes pour les \textbf{$5000$ prochaines années} et ce pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} (\textit{caché derrière la ligne rouge}) pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
   \label{fig:orbital-total_area_swept--5000}
 \end{figure}
 
@@ -399,14 +401,14 @@ A chaque temps $t_j$, $j \in \Z$ nous avons calculé la somme des surfaces total
 \begin{figure}[H]
   \centering
   \includegraphics{figures/50_years/orbital-total_area_swept.pdf}
-  \caption{Somme des surfaces balayées par les différentes planètes pour les \textbf{$50$ prochaines années} et ce pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
+  \caption{Somme des surfaces balayées par les différentes planètes pour les \textbf{$50$ prochaines années} et ce pour les différents schémas numériques utilisés. En \emph{bleu canard} pour le schéma de \textbf{Heun}, en \emph{orange} (\textit{caché derrière la ligne rouge}) pour l'\textbf{Euler symplectique} et en \emph{rouge} pour le \textbf{Stormer-Verlet}.}
   \label{fig:orbital-total_area_swept--50}
 \end{figure}
 
 Si on se restreint à une simulation sur $50$ années, on remarque que l'aire totale balayée pour les schémas symplectiques n'obéit pas tout à fait à une loi linéaire. Si on est attentif, on observe de très légères fluctuations. Ce sont les fluctuations dans les orbites de Jupiter et Saturne que nous observons à la figure (\ref{fig:plot2D--5000}) dues au fait que l'énergie oscille autour d'une certaine valeur (\autoref{fig:orbital-energy--5000}).
 
 \section{Conclusion}
-Nous avons simulé pour les $5000$ prochaines années l'évolution orbitale d'un système à $3$ corps comprenant le Soleil, Jupiter et Saturne. Pour cela, nous utilisé et comparé $3$ schémas numériques différents à savoir les schémas de Heun, Euler symplectique et Stormer-Verlet. Le premier est un schéma numérique dit \textbf{classiques} qui fait partie de la famille des intégrateurs de \textbf{Runge-Kutta}. Ces derniers peuvent monter jusqu'à des ordres élevés de convergences et en ce sens peuvent être très précis dans leurs approximations (contre un coût important en ressources informatiques). Le schéma de Heun est un aussi appelé \textbf{Runge-Kutta d'ordre 2}. Nous avons montré qu'il converge à l'ordre $2$ d'où son nom. Il a un ordre de convergence plus important que l'Euler symplectique (ordre $1$) et égale au Stormer-Verlet (ordre $2$). Le problème de ce schéma et plus généralement de la famille des intégrateurs de type Runge-Kutta est qu'ils ne sont pas symplectiques et donc ils ne conservent pas l'énergie du système. Par conséquent nous avons vu que l'orbite des planètes n'était pas stable mais déviait de sa trajectoire et balayait des surfaces de plus en plus grandes. Les schémas d'Euler symplectique et Stormer-Verlet sont eux des schéma dit \textbf{symplectiques} c'est à dire qu'ils sont spécialement conçu pour intégrer des systèmes Hamiltoniens et qu'ils conservent en moyenne l'énergie du système. Nous avons qu'avec de tels schémas numériques, l'orbite des planètes était plus ou moins stable, subissant de très légères fluctuations qui sont dues justement aux fluctuations d'énergie autour d'une valeur moyenne. Ceci nous est d'ailleurs confirmé si on regarde à la surface totale balayée par l'ensemble des corps célestes pendant un temps plus court que $5000$ années. Nous avons vu qu'il y a bien de très légères fluctuations preuve que l'orbite n'est pas complètement stable mais oscille très légèrement autour de sa trajectoire théorique.
+Nous avons simulé pour les $5000$ prochaines années l'évolution orbitale d'un système à $3$ corps comprenant le Soleil, Jupiter et Saturne et nous avons analysé différentes quantités physiques de ce système. Pour cela, nous avons utilisé et comparé $3$ schémas numériques différents à savoir les schémas de Heun, Euler symplectique et Stormer-Verlet. Le premier est un schéma numérique dit \textbf{classique} qui fait partie de la famille des intégrateurs de \textbf{Runge-Kutta}. Ces derniers peuvent monter jusqu'à des ordres élevés de convergence et en ce sens peuvent être très précis dans leurs approximations (contre un coût important en ressources informatiques). Le schéma de Heun est aussi appelé \textbf{Runge-Kutta d'ordre 2}. Nous avons montré qu'il converge à l'ordre $2$ d'où son nom. Il a un ordre de convergence plus important que l'Euler symplectique (ordre $1$) et identique au Stormer-Verlet (ordre $2$). Le problème de ce schéma et plus généralement de la famille des intégrateurs de type Runge-Kutta est qu'ils ne conservent pas l'énergie du système sur une longue période de temps. Par conséquent, nous avons vu que l'orbite des planètes n'était pas stable mais déviait de sa trajectoire et balayait des surfaces de plus en plus grandes. Les schémas d'Euler symplectique et Stormer-Verlet sont eux des schéma dit \textbf{symplectiques} c'est à dire qu'ils sont spécialement conçu pour intégrer des systèmes Hamiltoniens en ce sens qu'ils conservent en moyenne l'énergie du système. Nous avons vu qu'avec de tels schémas numériques, l'orbite des planètes était plus ou moins stable, subissant de très légères fluctuations qui sont dues aux fluctuations d'énergie autour d'une valeur moyenne. Si l'énergie du système n'est pas exactement conservée avec ces types de schémas numériques, sa déviation est en quelque sorte "piégée" ce qui permet au système de rester stable et de qualitativement assez bien refléter la réalité. Finalement, cette oscillation constante d'énergie nous a été confirmée par l'analyse de la surface totale balayée par l'ensemble des corps célestes pendant $50$ années. L'intégrateur que nous avons réalisé dans le cadre de ce projet est un intégrateur à $N$-corps. Nous pourrions donc tout à fait tester ces schémas numériques sur des systèmes comportant plus de 3 corps célestes. Par ailleurs, si pour une quelconque raison, nous voudrions gagner en précision dans notre simulation, il pourrait être intéressant de considérer des schémas du type Ruth d'ordre $3$ ou $4$ qui sont des schémas symplectiques mais d'ordre plus élevés que ceux utilisé dans le cadre de ce projet.
 
 \newpage
 \appendix
@@ -417,7 +419,7 @@ Nous avons simulé pour les $5000$ prochaines années l'évolution orbitale d'un
 \begin{figure}[H]
   \centering
   \includegraphics{figures/5000_years/orbital-plot3d.png}
-  \caption{Evolution orbitale en 2 dimension de l'orbite du Soleil (\emph{point jaune}), de Jupiter (\emph{rouge}) et de Saturne (\emph{brun}) pour les $5000$ prochaines années.}
+  \caption{Evolution orbitale en $3$ dimension de l'orbite du Soleil (\emph{point jaune}), de Jupiter (\emph{rouge}) et de Saturne (\emph{brun}) pour les $5000$ prochaines années.}
   \label{fig:orbital-plot3D--5000}
 \end{figure}
 

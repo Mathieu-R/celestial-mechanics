@@ -62,7 +62,7 @@ class NBodySimulation():
     }
 
     script_dir = os.path.dirname(__file__)
-    self.figures_dir = os.path.join(script_dir, f"../report/figures/{int(self.tN / 365.25)}_years")
+    self.figures_dir = os.path.join(script_dir, f"../slides/figures/{int(self.tN / 365.25)}_years")
 
     print(script_dir, self.figures_dir)
 
@@ -130,6 +130,7 @@ class NBodySimulation():
       # set labels
       ax.set_xlabel("x (AU)")
       ax.set_ylabel("y (AU)")
+      #ax.legend()
 
     plt.tight_layout()
 
@@ -176,11 +177,12 @@ class NBodySimulation():
 
     for (index, result) in enumerate(self.results):
       #solver_name = result["solver"]
-      # kg * au^2 / day^2 => kg * m^2 / s^2
-      energy = result["energy"] * ((au_to_meter ** 2) / (day_to_second ** 2))
-      ax.plot(self.time_mesh / 365.25, energy, c=result["color"])
+      # kg * au^2 / day^2 => kg * m^2 / s^2 => kJ
+      energy = result["energy"] * ((au_to_meter ** 2) / (day_to_second ** 2)) / 1000
+      ax.plot(self.time_mesh / 365.25, energy, c=result["color"], label=result["solver"])
       ax.set_xlabel("Temps [années]")
-      ax.set_ylabel("Energie totale [$J$]")
+      ax.set_ylabel("Energie totale [$kJ$]")
+      ax.legend()
 
 
     if self.options["save"]:
@@ -210,6 +212,7 @@ class NBodySimulation():
 
       ax.set_xlabel("Temps [années]", fontsize=8)
       ax.set_ylabel("L [$kg.m^2.s^{-1}$]", fontsize=8)
+      ax.legend()
       #ax.text(0.5, 1.05, f"({index + 1})", ha="center", transform=ax.transAxes, size=8)
       #ax.set_title(f"{solver_name}", fontsize=8)
 
@@ -235,6 +238,7 @@ class NBodySimulation():
 
       ax.set_xlabel("Temps [années]", fontsize=8)
       ax.set_ylabel("Aire totale balayée [$(AU)^2$]", fontsize=8)
+      ax.legend()
 
     plt.tight_layout()
 

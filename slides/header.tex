@@ -3,103 +3,42 @@
 \usepackage{amsthm}
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel} % traduction
-\usepackage[usenames,svgnames,dvipsnames]{xcolor}
-\usepackage[hang, small, labelfont=bf, up, textfont=it]{caption} % custom caption under figures
 %\usepackage{bookmark}
 %\usepackage{booktabs} % beautiful tables
 %\usepackage[thicklines]{cancel} % cancel terms in equation
 %\usepackage{color} % colors in box (theorems,...)
-%\usepackage{enumerate}
-\usepackage{float}
 \usepackage{framed} % box around text
 \usepackage{fancyhdr} % header
 %\usepackage{fancyvrb}
+\usepackage{appendix}
 \usepackage{mathrsfs}
 \usepackage{mathtools}
 \usepackage[parfill]{parskip} % avoid bad alignment in paragraphs
 \usepackage{pgfplots} % plot in tikz
 \usepackage{braket} % braket and sets
 \usepackage{derivative} % derivatives
+%\usepackage{setspace}
 \usepackage{siunitx}
 \usepackage{silence} % silence useless warnings
+%\usepackage{systeme} % system of equations
 \usepackage{tikz}
 \usepackage{tkz-euclide}
 \usepackage{tikz-3dplot}
 \usepackage{units} % Non-stacked fractions and better unit spacing
 \usepackage{xspace} % prints a trailing space in a smart way.
 
+\usepackage[font={small,it}]{caption}
+\captionsetup[figure]{font=scriptsize}%labelformat=empty}
+
 \usetikzlibrary{calc,patterns,angles,quotes}
+\usetikzlibrary{hobby} % random curves with tikz
 
 \tikzset{circ/.style = {fill, circle, inner sep = 0, minimum size = 3}}
 \tikzset{scirc/.style = {fill, circle, inner sep = 0, minimum size = 1.5}}
 \tikzset{mstate/.style={circle, draw, blue, text=black, minimum width=0.7cm}}
 
-% \titlespacing*{\section}{0pt}{5.5ex plus 1ex minus .2ex}{4.3ex plus .2ex}
-% \titlespacing*{\subsection}{0pt}{5.5ex plus 1ex minus .2ex}{4.3ex plus .2ex}
-
-\usepackage{enumitem}
-\setlist{nosep,after=\vspace{\baselineskip}}
-
-\pgfplotsset{compat=1.17}
-\sisetup{locale = FR}
-
-\usepackage[marginparwidth=2cm]{geometry}
-\geometry{
-	paper=a4paper,
-	inner=2.0cm,
-	outer=3.0cm,
-	bindingoffset=.5cm,
-	top=3.5cm,
-	bottom=3.5cm
-}
-
-\usepackage{graphicx}
-\setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
-%\graphicspath{{figures/}}
-
-% Default images settings
-\setkeys{Gin}{width=\linewidth, totalheight=\textheight, keepaspectratio}
-
-%---------------------------------------------------
-% BUGGY PACKAGES THAT NEED TO BE LOADED AT THE END
-%---------------------------------------------------
-
-% colored hyperlink
-% load hyperref at the end to avoid conflicts
-\usepackage[colorlinks]{hyperref} % colored ref
-% % cleverref must be loaded after hyperref
-% \usepackage{cleveref} % create ref
-
-\hypersetup{
-  colorlinks=true,
-  linkcolor=blue,
-  filecolor=blue,
-  citecolor=black,
-  urlcolor=cyan
-}
-
-% conditions for equations
-% https://tex.stackexchange.com/questions/95838/how-to-write-a-perfect-equation-parameters-description
-\newenvironment{conditions}
-  {\par\vspace{\abovedisplayskip}\noindent\begin{tabular}{>{$}l<{$} @{${}={}$} l}}
-	{\end{tabular}\par\vspace{\belowdisplayskip}}
-
-\newenvironment{conditions*}
-  {\par\vspace{\abovedisplayskip}\noindent
-   \tabularx{\columnwidth}{>{$}l<{$} @{${}={}$} >{\raggedright\arraybackslash}X}}
-  {\endtabularx\par\vspace{\belowdisplayskip}}
-
-%----------------
-% FIX
-%----------------
-
-\setlength{\headheight}{14.5pt}
-
 % increase vertical space for aligned equations
 \setlength{\jot}{7pt}
-
-% Filter warnings issued by package biblatex starting with "Patching footnotes failed"
-\WarningFilter{biblatex}{Patching footnotes failed}
 
 %----------------------
 %	COMMANDS
@@ -149,5 +88,3 @@
   \endgroup
 }
 \makeatother
-
-\renewcommand*\contentsname{Table des matières}
