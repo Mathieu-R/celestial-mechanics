@@ -132,6 +132,11 @@ class NBodySimulation():
       ax.set_ylabel("y (AU)")
       #ax.legend()
 
+      max_range = self.limit_plot(result["q"])
+
+      ax.set_xlim(-max_range, max_range)
+      ax.set_ylim(-max_range, max_range)
+
     plt.tight_layout()
 
     if self.options["save"]:
@@ -162,6 +167,13 @@ class NBodySimulation():
       ax.set_ylabel("y (AU)", fontsize=6)
       ax.set_zlabel("z (AU)", fontsize=6)
 
+      max_range = self.limit_plot(result["q"])
+
+      ax.set_xlim(-max_range, max_range)
+      ax.set_ylim(-max_range, max_range)
+      ax.set_zlim(-max_range, max_range)
+
+
     plt.tight_layout()
 
     if self.options["save"]:
@@ -183,7 +195,6 @@ class NBodySimulation():
       ax.set_xlabel("Temps [années]")
       ax.set_ylabel("Energie totale [$kJ$]")
       ax.legend()
-
 
     if self.options["save"]:
       self.fig.savefig(f"{self.figures_dir}/orbital-energy.pdf")
